@@ -6,10 +6,11 @@ for face operations, and functions for calculating Jacobians [?].
 Created on Thu Mar  3 22:51:54 2011
 
 @author Matt Ueckermann
+@author Corbin Foucart
 """
-import src.master.mk_basis as mkb
-import src.master.mk_basis_nodal as mkbn
-from src.master.mk_cubature import get_pts_weights
+import src.fem_base.master.mk_basis as mkb
+import src.fem_base.master.mk_basis_nodal as mkbn
+from src.fem_base.master.mk_cubature import get_pts_weights
 from numpy import zeros, array, dot, diag, arange, shape
 import src.pyutil as pyutil
 
@@ -23,7 +24,7 @@ class Master_nodal:
     __init__(self, n, dim, element, init_type='all', n_quad=None):
 
     """
-    def __init__(self, n, dim, element, init_type='all', n_quad=None):
+    def __init__(self, order, dim, element, init_type='all', n_quad=None):
         """Class constructor
         @brief This is where all the action happens
 
@@ -52,11 +53,8 @@ class Master_nodal:
 
         @author Matt Ueckermann
         """
+        n = order
 
-#        if dim == 1:
-#            print "Master class currently only works for 2D or 3D meshes."
-
-        #Add doxypy tags to document member variables
         ## Order of the basis
         self.n = n
         ## Dimension of the basis
@@ -73,6 +71,7 @@ class Master_nodal:
         # \f$f(t,\mathbf x) = \sum_{i=0}^{n_b} f_i(t) \theta(\mathbf x)\f$
         # where \f$\theta(\mathbf x)\f$ is defined by basis
         self.basis = basis
+        self.nodal_pts = self.basis.nodal_pts
 
         #Get number of bases
         ## The number of bases
@@ -127,7 +126,7 @@ class Master_nodal:
 
         # CF:  compute the derivatives of the nodal basis shape functions at the
         # nodal points directly via the basis
-        self.nodal_shap_der = [basis.eval_at_pts(basis.nodal_pts, der_dim=i) for i in xrange(basis.dim)]
+        self.nodal_shap_der = [basis.eval_at_pts(basis.nodal_pts, der_dim=i) for i in range(basis.dim)]
 
     def _mkelmFEM(self):
         """This creates the linear Finite element operators used on the element
@@ -257,7 +256,7 @@ class Master:
         """
 
         if dim == 1:
-            print "Master class currently only works for 2D or 3D meshes."
+            print("Master class currently only works for 2D or 3D meshes.")
 
         #Add doxypy tags to document member variables
         ## Order of the basis
@@ -350,11 +349,10 @@ class Master:
         # \frac{\partial}{\partial x_k} \theta_i(\mathbf x)dK\f$
         #, where \f$K\f$ is the reference or master element.
         self.K_sym = [None] * dim
-        for i in xrange(dim):
+        for i in range(dim):
             self.K_sym[i] = mkb.inprod_mat(aij, \
                                        mkb.polyder_mat(aij, pqr, i), \
                                        pqr, pqr_int)
-                                       #Checked! Seems ok for element 3
 
     def _mkedFEM(self):
         '''This create the FEM operators used on the edges of elements
@@ -382,7 +380,7 @@ class Master:
         # \theta_i(\mathbf x)d \partial_k K\f$
         #, where \f$\partial_k K\f$ is edge 'k' of the master element.
         self.M_ed_TT_sym = [None] * ne
-        for i in xrange(ne):
+        for i in range(ne):
             if n_ed_type == 1:
                 bnum = 0
             else:
@@ -415,7 +413,7 @@ class Master:
         # volume space, respectively.
 
         self.M_ed_TP_sym = [None] * ne
-        for i in xrange(ne):
+        for i in range(ne):
             if n_ed_type == 1:
                 bnum = 0
             else:
@@ -437,7 +435,7 @@ class Master:
         #triangle or a square for a prismatic element. If there is only one
         #type of element, then k only take 1 value, k==0
         self.M_ed_PP_sym = [None] * n_ed_type
-        for i in xrange(n_ed_type):
+        for i in range(n_ed_type):
             if n_ed_type == 1:
                 bnum = 0
             else:
@@ -505,16 +503,16 @@ class Master:
 
         #This is faster and does the same thing
         self.M = array(self.M_sym, dtype=float)
-        for k in xrange(dim):
+        for k in range(dim):
             self.K[:, :, k] = array(self.K_sym[k][:][:], dtype=float)
 
-        for k in xrange(ne):
+        for k in range(ne):
             self.M_ed_TT[:, :, k] = \
                 array(self.M_ed_TT_sym[k][:][:], dtype=float)
             self.M_ed_TP[:, :, k] = \
                 array(self.M_ed_TP_sym[k][:][:], dtype=float)
 
-        for k in xrange(n_ed_type):
+        for k in range(n_ed_type):
             self.M_ed_PP[:, :, k] = \
                 array(self.M_ed_PP_sym[k][:][:], dtype=float)
 
@@ -618,7 +616,7 @@ class Master:
                 self.basis_e[i].vol_verts, ed_elm, self.dim - 1)
             i+=1
 
-        for i in xrange(self.ne):
+        for i in range(self.ne):
             if self.n_ed_type == 1:
                 bnum = 0
             else:

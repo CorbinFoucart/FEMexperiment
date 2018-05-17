@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 """
 @package src.master.mk_nodal_basis Makes the nodal polynomial bases.
-
 Created on Fri Jul 15 09:47:51 2011
 
 @author: Matt Ueckermann
 @author: Corbin Foucart
 """
-from sympy import Rational, Symbol, integrate, sqrt, binomial
-
-from sympy.polys import Poly
-from sympy.matrices import Matrix
-import src.fem_base.master.mk_basis as mkb
-import src.fem_base.master.mk_cubature as mkc
 from numpy import  array, mgrid, ones, dot, abs, column_stack, rot90, zeros, eye
 from numpy import arange, argsort, append
 from numpy.linalg import inv
+
+from sympy import Rational, Symbol, integrate, sqrt, binomial
+from sympy.polys import Poly
+from sympy.matrices import Matrix
+
+import src.fem_base.master.mk_basis as mkb
+import src.fem_base.master.mk_cubature as mkc
+
 import copy
 
-#Just a dummy class to use in uniformlocalpts #TODO scrape this out
+#a dummy class to use in uniformlocalpts #TODO scrape this out
 class dmy_struct:
     pass
 
@@ -209,8 +210,6 @@ def mk_nodal_pts(n, dim, element):
     #the points where we want them. This will be different depending on the
     #element type.
 
-    #print element, dim
-
     if element == 0:
         if dim == 2:
             if type(basis.n) == list:
@@ -234,7 +233,6 @@ def mk_nodal_pts(n, dim, element):
             T = mkb.mk_mapcoords(neweqpts, eq_tri_verts, element, dim)
             newpts = dot(T, basis.vol_verts)
 
-            #Done!
             return newpts, flocal
 
         elif dim == 3:
@@ -312,10 +310,6 @@ def mk_nodal_pts(n, dim, element):
 
     if element == 1:
         #Basically we make use of the 1D warpfactor -- no blending needed here
-        #print u_pts
-        #print u_pts_1d
-        #print LGLpts_x
-        #print _warpfactor(u_pts[:, 0], u_pts_1d, LGLpts_x)
 
         w = [_warpfactor(u_pts[:, i], u_pts_1d, LGLpts_x) for i in range(dim)]
         if dim == 3 and type(n) is list:
@@ -408,7 +402,7 @@ class Basis_nodal(mkb.Basis):
 
         ##The nodal points that define where the nodal basis has value 1, and 0
         self.nodal_pts = nodal_pts
-        #print nodal_pts
+
         ##list of ids that give the nodal points that lie on each face
         self.nodal_ed_ids = ed_ids
 
@@ -972,12 +966,9 @@ def _mk_legendre_1d_sym(nb, coord):
         for n in range(2, nb):
             leg[n] = Rational('0')
             for k in range(n + 1):
-                #print "(n,k) (", n, ",",k, ")"
-                #print (2 ** n), (coord ** k), binomial(n, k),\
+
                 #    binomial((n + k - 1) / 2.0, n)
                 leg[n] += (2 ** n) * (coord ** k) * binomial(n, k) \
                     * binomial((n + k - 1.0) / 2.0, n) \
                     / (2.0 / (2.0 * n +1.0)) ** 0.5 #normalization constant
-                #print leg[n]
-
     return leg

@@ -257,35 +257,35 @@ def get_pts_weights(n, dim, elm, force_mk=False):
         x = array(mk_cube_rule(n, dim, 0))
 
     if (dim == 2) and (elm == 0):
-        from src.master.cubature.cubature_tables import dim2_elm0
+        from src.fem_base.master.cubature.cubature_tables import dim2_elm0
         if (n < len(dim2_elm0)) and not (force_mk):
             x = array(dim2_elm0[n])
         else:
             x = array(mk_cube_rule(n, dim, elm))
 
     elif (dim == 2) and (elm == 1):
-        from src.master.cubature.cubature_tables import dim2_elm1
+        from src.fem_base.master.cubature.cubature_tables import dim2_elm1
         if (n < len(dim2_elm1)) and not (force_mk):
             x = array(dim2_elm1[n])
         else:
             x = array(mk_cube_rule(n, dim, elm))
 
     elif (dim == 3) and (elm == 0):
-        from src.master.cubature.cubature_tables import dim3_elm0
+        from src.fem_base.master.cubature.cubature_tables import dim3_elm0
         if (n < len(dim3_elm0)) and not (force_mk):
             x = array(dim3_elm0[n])
         else:
             x = array(mk_cube_rule(n, dim, elm))
 
     elif (dim == 3) and (elm == 1):
-        from src.master.cubature.cubature_tables import dim3_elm1
+        from src.fem_base.master.cubature.cubature_tables import dim3_elm1
         if (n < len(dim3_elm1)) and not (force_mk):
             x = array(dim3_elm1[n])
         else:
             x = array(mk_cube_rule(n, dim, elm))
 
     elif (dim == 3) and (elm == 2):
-        from src.master.cubature.cubature_tables import dim3_elm2
+        from src.fem_base.master.cubature.cubature_tables import dim3_elm2
         if (n < len(dim3_elm2)) and not (force_mk):
             x = array(dim3_elm2[n])
         else:
