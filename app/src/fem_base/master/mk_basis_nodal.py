@@ -5,20 +5,20 @@
 Created on Fri Jul 15 09:47:51 2011
 
 @author: Matt Ueckermann
+@author: Corbin Foucart
 """
 from sympy import Rational, Symbol, integrate, sqrt, binomial
 
 from sympy.polys import Poly
 from sympy.matrices import Matrix
-import mk_basis as mkb
-import mk_cubature as mkc
+import src.fem_base.master.mk_basis as mkb
+import src.fem_base.master.mk_cubature as mkc
 from numpy import  array, mgrid, ones, dot, abs, column_stack, rot90, zeros, eye
 from numpy import arange, argsort, append
 from numpy.linalg import inv
 import copy
-import pdb
 
-#Just a dummy class to use in uniformlocalpts
+#Just a dummy class to use in uniformlocalpts #TODO scrape this out
 class dmy_struct:
     pass
 
@@ -31,8 +31,8 @@ def _lagrange_1d(xpts, evalpts):
                     is 1 at xpts[i] and zero elsewhere at the point evalpts[m]
     """
     latpts = ones((len(xpts), len(evalpts)))
-    for j in xrange(len(xpts)):
-        for m in xrange(len(xpts)):
+    for j in range(len(xpts)):
+        for m in range(len(xpts)):
             if j is not m:
                 latpts[j, :] *= (evalpts - xpts[m]) / (xpts[j] - xpts[m])
     return latpts
@@ -45,8 +45,8 @@ def _mk_lagrange_1d_sym(xpts, coord):
     @retval lag (\c Symbol) List of the symbolic Lagrange bases
     """
     lag = [Rational('1') for i in range(len(xpts))]
-    for j in xrange(len(xpts)):
-        for m in xrange(len(xpts)):
+    for j in range(len(xpts)):
+        for m in range(len(xpts)):
             if j is not m:
                 lag[j] *= (coord - xpts[m]) / (xpts[j] - xpts[m])
     return lag
@@ -327,7 +327,7 @@ def mk_nodal_pts(n, dim, element):
 
     if element == 2:
         if dim != 3:
-            print "WARNING: NO ELEMENT 2 for dim !=3"
+            print("WARNING: NO ELEMENT 2 for dim !=3")
         #This actually ends up pretty easy. We simply use the code for the 2D
         #triangle for the x-y components, then use the 1D idea (as in element1)
         #for the z components
@@ -376,9 +376,9 @@ class Basis_nodal(mkb.Basis):
     """
     #CM  Python note: This class is a child class of Basis, in mk_basis.py
     #    so this class inherits Basis' members and methods.
-    def __init__(self, n, dim, element, expand_monoms=False):
+    def __init__(self, order, dim, element, expand_monoms=False):
         """
-        @param n (\c int) The polynomial degree of the basis
+        @param order (\c int) The polynomial degree of the basis
         @param dim (\c int) The dimension of the basis
         @param element (\c int) The element type (see mk_basis.Basis.int_el_pqr)
         @param expand_monoms (\c bool) Flag that, if true, calculates the
@@ -388,6 +388,7 @@ class Basis_nodal(mkb.Basis):
         """
         #Start by creating the modal basis -- which we will need to create
         #the nodal basis on the element
+        n = order
         if type(n) == list:
             nmax = max(n)
         else:
@@ -481,7 +482,7 @@ class Basis_nodal(mkb.Basis):
             #Now we have to assemble the bases
             #print "Building tensor products of 1D bases."
             ndex = [0, 0, 0]
-            for i in xrange(nb):
+            for i in range(nb):
                 for j in range(dim):
                     polys[i] *= p[j][ndex[j]]
                 if dim == 3:
@@ -516,7 +517,7 @@ class Basis_nodal(mkb.Basis):
             if expand_monoms:
                 self.monoms = mkb.mk_pqr_coeff(nmax * 2 * dim, dim)
                 #And calculate the additional integrals
-                print "Calculating additional integrals..."
+                print("Calculating additional integrals...")
                 self.elmint_monoms.append(\
                     mkb.int_el_pqr(self.monoms[n_monoms:], element)[0])
             else:
@@ -526,14 +527,14 @@ class Basis_nodal(mkb.Basis):
 
             #Finally, make the coefficients matrix in our format
             coeffs = [[0 for i in range(n_monoms)] for j in range(nb)]
-            for i in xrange(nb):
+            for i in range(nb):
                 #CM Neglecting () causes crash in sympy 0.7.1
                 tmpcoeffs = array(polys[i].coeffs())
                 #tmpcoeffs = array(polys[i].coeffs)
                 #print polys[i]
                 #print polys[i].coeffs()
                 #print tmpcoeffs.shape
-                for j in xrange(len(tmpcoeffs)):
+                for j in range(len(tmpcoeffs)):
                     if tmpcoeffs[j] is not 0:
                         #CM  self.monoms is a list
                         #    but Poly.monoms() is a method
@@ -580,8 +581,8 @@ class Basis_nodal(mkb.Basis):
             y = Symbol('y')
             z = Symbol('z')
             p1 = [Rational('0') for i in range(base2d.nb)]
-            for i in xrange(base2d.nb):
-                for j in xrange(base2d.nb):
+            for i in range(base2d.nb):
+                for j in range(base2d.nb):
                     #Create the polynomial for this basis
                     p1[i] += base2d.coeffs[i][j] * \
                         (x ** base2d.monoms[j][0]) * (y ** base2d.monoms[j][1])
@@ -592,7 +593,7 @@ class Basis_nodal(mkb.Basis):
             #Now combine these two to make our full basis
             polys = [Rational('1') for i in range(nb)]
             ndex = [0, 0]
-            for i in xrange(nb):
+            for i in range(nb):
                 polys[i] = Poly(p[ndex[1]] * p1[ndex[0]], x, y, z)
                 ndex[0] += 1
                 if ndex[0] == nb2d:
@@ -610,20 +611,20 @@ class Basis_nodal(mkb.Basis):
             if expand_monoms:
                 self.monoms = mkb.mk_pqr_coeff(nmax * 2 * dim, dim)
                 #And calculate the additional integrals
-                print "Calculating additional integrals..."
+                print("Calculating additional integrals...")
                 self.elmint_monoms.append(\
                     mkb.int_el_pqr(self.monoms[n_monoms:], element)[0])
             else:
-                print "WARNING: mk_basis.in_prod_mat CANNOT be used to create",\
-                   "the FEM operators. Use the tensor-product cubature instead."
+                print("WARNING: mk_basis.in_prod_mat CANNOT be used to create",\
+                   "the FEM operators. Use the tensor-product cubature instead.")
 
             #Finally, make the coefficients matrix in our format
             coeffs = [[0 for i in range(n_monoms)] for j in range(nb)]
-            for i in xrange(nb):
+            for i in range(nb):
                 #CM  Neglecting parens causes crash in sympy 0.7.1
                 #but works in sympy 0.6.7
                 tmpcoeffs = array(polys[i].coeffs())
-                for j in xrange(len(tmpcoeffs)):
+                for j in range(len(tmpcoeffs)):
                     if tmpcoeffs[j] != 0:
                         ids = self.monoms.index(list(polys[i].monoms()[j]))
                         coeffs[i][ids] += tmpcoeffs[j]
@@ -665,10 +666,10 @@ class Basis_nodal(mkb.Basis):
 
         checkfail = b > tol
         if checkfail:
-            print "\nNodal check: FAILED! at", b," Basis formed is not" + \
-            " a nodal basis as the points specified by self.nodal_pts."
+            print("\nNodal check: FAILED! at", b," Basis formed is not" + \
+            " a nodal basis as the points specified by self.nodal_pts.")
         else:
-            print "\nNodal check: PASSED."
+            print("\nNodal check: PASSED.")
 
 class Basis_tensor_modal(mkb.Basis):
     """Make a modal basis that's the tensor product of 1D modal bases. This
@@ -780,7 +781,7 @@ class Basis_tensor_modal(mkb.Basis):
             #print "Building tensor products of 1D bases."
             ndex = [0, 0, 0]
             #print nb
-            for i in xrange(nb):
+            for i in range(nb):
                 for j in range(dim):
                     polys[i] *= p[j][ndex[j]]
                     #print p[j][ndex[j]]
@@ -817,19 +818,19 @@ class Basis_tensor_modal(mkb.Basis):
             if expand_monoms:
                 self.monoms = mkb.mk_pqr_coeff((nmax+2) ** dim, dim)
                 #And calculate the additional integrals
-                print "Adding additional monomial integrals"
+                print("Adding additional monomial integrals")
                 self.elmint_monoms = mkb.int_el_pqr(self.monoms, element)[0]
 
             #Finally, make the coefficients matrix in our format
             coeffs = [[0 for i in range(n_monoms)] for j in range(nb)]
-            for i in xrange(nb):
+            for i in range(nb):
                 #CM Neglecting () causes crash in sympy 0.7.1
                 tmpcoeffs = array(polys[i].coeffs())
                 #tmpcoeffs = array(polys[i].coeffs)
                 #print polys[i]
                 #print polys[i].coeffs()
                 #print tmpcoeffs.shape
-                for j in xrange(len(tmpcoeffs)):
+                for j in range(len(tmpcoeffs)):
                     if tmpcoeffs[j] is not 0:
                         #CM  self.monoms is a list
                         #    but Poly.monoms() is a method
@@ -876,8 +877,8 @@ class Basis_tensor_modal(mkb.Basis):
             y = Symbol('y')
             z = Symbol('z')
             p1 = [Rational('0') for i in range(base2d.nb)]
-            for i in xrange(base2d.nb):
-                for j in xrange(base2d.nb):
+            for i in range(base2d.nb):
+                for j in range(base2d.nb):
                     #Create the polynomial for this basis
                     p1[i] += base2d.coeffs[i][j] * \
                         (x ** base2d.monoms[j][0]) * (y ** base2d.monoms[j][1])
@@ -888,7 +889,7 @@ class Basis_tensor_modal(mkb.Basis):
             #Now combine these two to make our full basis
             polys = [Rational('1') for i in range(nb)]
             ndex = [0, 0]
-            for i in xrange(nb):
+            for i in range(nb):
                 polys[i] = Poly(p[ndex[1]] * p1[ndex[0]], x, y, z)
                 ndex[0] += 1
                 if ndex[0] == nb2d:
@@ -904,19 +905,19 @@ class Basis_tensor_modal(mkb.Basis):
             if expand_monoms:
                 self.monoms = mkb.mk_pqr_coeff((nmax+1) ** dim, dim)
                 #And calculate the additional integrals
-                print "Adding additional monomial integrals"
+                print("Adding additional monomial integrals")
                 self.elmint_monoms = mkb.int_el_pqr(self.monoms, element)[0]
             else:
-                print "WARNING: mk_basis.in_prod_mat CANNOT be used to create",\
-                   "the FEM operators. Use the tensor-product cubature instead."
+                print("WARNING: mk_basis.in_prod_mat CANNOT be used to create",\
+                   "the FEM operators. Use the tensor-product cubature instead.")
 
             #Finally, make the coefficients matrix in our format
             coeffs = [[0 for i in range(n_monoms)] for j in range(nb)]
-            for i in xrange(nb):
+            for i in range(nb):
                 #CM  Neglecting parens causes crash in sympy 0.7.1
                 #but works in sympy 0.6.7
                 tmpcoeffs = array(polys[i].coeffs())
-                for j in xrange(len(tmpcoeffs)):
+                for j in range(len(tmpcoeffs)):
                     if tmpcoeffs[j] != 0:
                         ids = self.monoms.index(list(polys[i].monoms()[j]))
                         coeffs[i][ids] += tmpcoeffs[j]
@@ -946,7 +947,7 @@ class Basis_tensor_modal(mkb.Basis):
         #to highest degree
         nb = self.nb
         self.basis_degree = [0 for i in range(nb)]
-        for i in xrange(nb):
+        for i in range(nb):
             ids = abs(array(self.coeffs[i])) > tol
             padLength = len(self.monoms) - len(ids)
             pad = zeros(padLength, dtype=bool)

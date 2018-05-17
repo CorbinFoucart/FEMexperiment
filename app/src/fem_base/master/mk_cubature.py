@@ -6,7 +6,7 @@ Created on Fri Jun  3 15:46:31 2011
 """
 from scipy.special.orthogonal import j_roots as jacobi_roots
 from numpy import ceil, array, dot, vstack, column_stack, real
-from src.master.mk_basis import int_el_pqr, mk_mapcoords
+from src.fem_base.master.mk_basis import int_el_pqr, mk_mapcoords
 
 def gauss_quad(n, alpha=0, beta=0):
     """Calculates the 1D gauss quadrature points \f$ x_i\f$ and weights
@@ -197,8 +197,8 @@ def mk_cube_rule(n, dim, elm):
             verts2, dum = int_el_pqr(element=2, dim=dim)
 
             if dim == 2:
-                print 'WARNING: No element #2 in 2D.'
-                print 'No quadrature rule returned'
+                print('WARNING: No element #2 in 2D.')
+                print('No quadrature rule returned')
                 return None
             else:
                 verts2 = vstack([verts2[:3 , :], verts2[2, :], \

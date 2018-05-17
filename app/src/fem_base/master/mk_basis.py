@@ -162,7 +162,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
 
         # For a line [-XMAX, XMAX] if dim == 1
         if dim == 1:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(x**pqr[i][0], (x, -XMAX, XMAX))
 
@@ -175,7 +175,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
 
         # For a triangle [-XMAX,XMAX] [XMAX,-XMAX] [XMAX,XMAX] if dim == 2
         elif dim == 2:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(
                          integrate(x**pqr[i][0] * y**pqr[i][1], \
@@ -191,7 +191,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
 
         # For a tetrahedral if dim ==3
         elif dim == 3:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(integrate(
                          integrate(x**pqr[i][0] * y**pqr[i][1] * z**pqr[i][2],
@@ -218,7 +218,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
 
         # For a square [-XMAX,-XMAX] [XMAX,-XMAX] [XMAX,XMAX] [-XMAX,XMAX]
         if dim == 2:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(
                      integrate(x**pqr[i][0] * y**pqr[i][1], (y, -XMAX, XMAX)),
@@ -235,7 +235,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
                         [0, 1]]
         #or a cube
         elif dim == 3:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(integrate(
                      integrate(x**pqr[i][0] * y**pqr[i][1] * z**pqr[i][2],
@@ -264,7 +264,7 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
 
         # For a prism
         if dim == 3:
-            for i in xrange(pqr_i):
+            for i in range(pqr_i):
                 #Volume integral
                 int_pqr[i] = integrate(integrate(
                          integrate(x**pqr[i][0] * y**pqr[i][1] * z**pqr[i][2],
@@ -284,8 +284,8 @@ def int_el_pqr(pqr=[], element=0, dim=None, X=1):
                         [0, 3, 5, 2], \
                         [0, 1, 4, 3]]
     else:
-        print 'Unknown element/configuration requested. Element=', element, \
-        ' with dimension=', dim, ' is not supported'
+        print('Unknown element/configuration requested. Element=', element, \
+        ' with dimension=', dim, ' is not supported')
         el_verts = None
         ed_verts = None
 
@@ -559,14 +559,14 @@ def numbase(n, dim):
     @param    dim  The dimension of the basis
     @retval   nb   The number of basis in a complete degree 'n' polynomial basis
                    in 'dim' dimensions.
-    @note    Uses nb = 1,    for i in xrange(dim):
+    @note    Uses nb = 1,    for i in range(dim):
         nb = nb * (i + 1 + n) / (i + 1)
     @author Matt Ueckermann
     """
     nb = 1
-    for i in xrange(dim):
+    for i in range(dim):
         nb = nb * (i + 1 + n) / (i + 1)
-    return nb
+    return int(nb)
 
 ###############################################################################
 def polymul(a1, a2, pqr):
@@ -607,16 +607,16 @@ def polymul(a1, a2, pqr):
 
     #Error checking
     if (nb > pqr_i):
-        print "polymul cannot multiply these polynomials together because", \
+        print("polymul cannot multiply these polynomials together because", \
         " the matrix defining the polynomials, pqr, only contains ", pqr_i, \
-        " entries, but requires ", nb, " entries."
+        " entries, but requires ", nb, " entries.")
         return -1
 
     # Initialize b
     b = [Rational(0)] * (nb)
 
-    for i in xrange(np1):
-        for j in xrange(np2):
+    for i in range(np1):
+        for j in range(np2):
             # when you multiply a1(x^p1 * y^q1 * z^r1) with
             # a2(x^p2 * y^q2 * z^r2) you get
             # a1 * a2 * [x^(p1+p2) * y^(q1+q2) * z^(r1+r2)]
@@ -624,7 +624,7 @@ def polymul(a1, a2, pqr):
             #Do a search to find where to add the multiplied coefficients
             #This monomial corresponds with which column in pqr?
             pq = pqr[i][:]
-            for k in xrange(len(pq)):
+            for k in range(len(pq)):
                 pq[k] = pq[k] + pqr[j][k]
 
             ids = pqr.index(pq)
@@ -663,21 +663,21 @@ def polyder(a, pqr, der_dim):
 
     #Error checking
     if (der_dim + 1 > len(pqr[0])):
-        print "polyder cannot take derivative with respect to", \
+        print("polyder cannot take derivative with respect to", \
         " component 1 + ", der_dim, "since we have a", len(pqr[0]), \
-        "component (or dimension) polynomial."
+        "component (or dimension) polynomial.")
         return -1
 
     if (len(a) > len(pqr)):
-        print "The 'pqr' matrix has too few entries.", \
+        print("The 'pqr' matrix has too few entries.", \
         "The 'pqr' matrix only has",\
-        len(pqr), "entries whereas it needs at least", len(a), "entries."
+        len(pqr), "entries whereas it needs at least", len(a), "entries.")
         return -1
 
     # Initialize the output vector b
     b = [Rational(0) for i in range(len(a))]
 
-    for i in xrange(len(a)):
+    for i in range(len(a)):
         #If the current monomial is constant in der_dim, then the derivative is
         #zero, so we do nothing.
         if (pqr[i][der_dim] > 0):
@@ -721,21 +721,21 @@ def polyder_mat(a, pqr, der_dim):
 
     #Error checking
     if (der_dim + 1 > len(pqr[0])):
-        print "polyder_mat cannot take derivative with respect to", \
+        print("polyder_mat cannot take derivative with respect to", \
         " component 1 + ", der_dim, "since we have a", len(pqr[0]), \
-        "component (or dimension) polynomial."
+        "component (or dimension) polynomial.")
         return -1
 
     if (len(a[0]) > len(pqr)):
-        print "The 'pqr' matrix has too few entries.", \
+        print("The 'pqr' matrix has too few entries.", \
         "The 'pqr' matrix only has",\
-        len(pqr), "entries whereas it needs at least", len(a), "entries."
+        len(pqr), "entries whereas it needs at least", len(a), "entries.")
         return -1
 
     # Initialize the output vector b
     b = [[Rational(0) for i in range(len(a[0]))] for j in range(len(a))]
 
-    for i in xrange(len(a)):
+    for i in range(len(a)):
         b[i] = polyder(a[i], pqr, der_dim)
 
     return b
@@ -771,7 +771,7 @@ def inprod(a1, a2, pqr, int_pqr):
 
     coeff = Rational(0)
     b = polymul(a1[:], a2[:], pqr)
-    for ii in xrange(len(b)):
+    for ii in range(len(b)):
         coeff = coeff + b[ii] * int_pqr[ii]
 
     return coeff
@@ -821,8 +821,8 @@ def inprod_mat(a1, a2, pqr, int_pqr):
 
     coeff = [[Rational(0) for j in range(nb_a2)] for i in range(nb_a1)]
 
-    for i in xrange(nb_a1):
-        for j in xrange(nb_a2):
+    for i in range(nb_a1):
+        for j in range(nb_a2):
             coeff[i][j] = inprod(a1[i], a2[j], pqr, int_pqr)
 
     return coeff
@@ -858,7 +858,7 @@ def mk_coef_n(pqr, n, dim, row, col=0):
     else :
     #If dimension is not 1, cycle through all the possible degrees for this
     # dimension
-        for j in xrange(n + 1):
+        for j in range(n + 1):
             #This dimension's basis has taken the value of 'j', now we need to
             #create the basis for the other dimensions such that the total
             # degree is n. That means the degree of the other dimensions need
@@ -913,7 +913,7 @@ def mk_pqr_coeff(n, dim):
 
     #Just a quick check for debugging reasons
     if row != nb:
-        print num, "is not equal to", nb
+        print(num, "is not equal to", nb)
     return pqr
 
 
@@ -1002,7 +1002,7 @@ def xyz2uvw_TM(x, monoms_xyz, monoms_uvw=None):
     TM = Matrix([[0] * nb_xyz] * nb_uvw)
 
     #Now create the mapping or transform matrix
-    for i in xrange(nb_xyz):
+    for i in range(nb_xyz):
         #Create the on-edge monomial for this volume monomial
         expression = 1
         for j in range(dim1):
@@ -1017,7 +1017,7 @@ def xyz2uvw_TM(x, monoms_xyz, monoms_uvw=None):
 
         #Finally, find the coefficients of the new monomials, and add it to the
         #appropriate row/column in the transformation matrix
-        for j in xrange(len(p.coeffs)):
+        for j in range(len(p.coeffs)):
             ids = monoms_uvw.index(list(p.monoms[j]))
             TM[ids, i] = TM[ids, i] + p.coeffs[j]
 
@@ -1093,9 +1093,9 @@ def elm2edge(basis, ed, basis_e=None):
     TM = xyz2uvw_TM(x, basis.monoms[0:nb], basis_e.monoms[0:basis_e.nb])
 
     #Finally, do all the mappings for all the existing bases
-    for i in xrange(nb):
+    for i in range(nb):
         newcoeffs = TM * Matrix(basis.coeffs[i])
-        for k in xrange(basis_e.nb):
+        for k in range(basis_e.nb):
             coeffs_e[i][k] = newcoeffs[k]
 
     return coeffs_e
@@ -1242,12 +1242,12 @@ def mk_mapcoords(xi, v, elt_type, dim):
         # WEDGE
         pass
     else:
-        print "Bad element type / dimension combo"
+        print("Bad element type / dimension combo")
 
 
 
     if elt_type == 0: #Tet, line, or triangle
-        for j in xrange(len(xi)):
+        for j in range(len(xi)):
             if dim == 1:
                 #assumed only two vertices:
                 #CM  These correspond to N_a(xi) in TJR Hughes's book pp. 38--39
@@ -1276,14 +1276,14 @@ def mk_mapcoords(xi, v, elt_type, dim):
                     array([xi[j, 0], xi[j, 1], xi[j, 2], 1.]))
 
     elif elt_type == 1: #square or cube
-        for j in xrange(len(xi)):
-            for i in xrange(len(v)):
-                for k in xrange(dim):
+        for j in range(len(xi)):
+            for i in range(len(v)):
+                for k in range(dim):
                     #CM  Tensor product of 1D N_a functions
                     T[j, i] = T[j, i] * (1 + sign(v[i, k]) * xi[j, k]) / 2.
 
     elif elt_type == 2: #prism
-        for j in xrange(len(xi)):
+        for j in range(len(xi)):
             #Non-general version
             T[j, 0] = (1. - xi[j, 0]) * (1. - xi[j, 2]) / 4.
             T[j, 1] = (xi[j, 0] - xi[j, 1]) * (1. - xi[j, 2])  / 4.
@@ -1560,7 +1560,7 @@ class Basis:
         aij = [[Rational(int(i==j)) for i in range(nb)] for j in range(nb)]
         #aij = [[Rational(i==j) for i in range(nb)] for j in range(nb)]
         #aij = [[Rational(0)] * nb] * nb
-        #for i in xrange(nb):
+        #for i in range(nb):
         #    aij[i][i] = Rational(1)
 
         #Figure out the coefficients of all the monomials
@@ -1578,17 +1578,17 @@ class Basis:
         if mkbasis:
             #print "Preliminaries finished, starting basis creating:"
             #Do Gram-Shmidt orthonormalization
-            for j in xrange(0, nb):
+            for j in range(0, nb):
                 #print "Creating basis", j+1, "of", nb
                 #Now orthogonalize wrt old basis
-                for k in xrange(0, j):
+                for k in range(0, j):
                     coeff = inprod(aij[j], aij[k], pqr, int_pqr)
                     for ii in range(nb):
                         aij[j][ii] = aij[j][ii] - aij[k][ii] * coeff
 
                 #And Normalize
                 coeff = inprod(aij[j], aij[j], pqr, int_pqr)
-                for k in xrange(nb):
+                for k in range(nb):
                     aij[j][k] = aij[j][k] / sqrt(coeff)
         else:
             pass
@@ -1685,11 +1685,11 @@ class Basis:
         if output:
             a = ones((self.nb, self.nb))
 
-        print "Checking if basis is orthogonal"
+        print("Checking if basis is orthogonal")
         checkfail = False
-        for i in xrange(self.nb):
-            print ".",
-            for j in xrange(self.nb):
+        for i in range(self.nb):
+            print(".")
+            for j in range(self.nb):
                 #Find inner Products
                 coeff = inprod(aij[i], aij[j], pqr, int_pqr)
                 if output:
@@ -1702,10 +1702,10 @@ class Basis:
                         checkfail = True
 
         if checkfail:
-            print "\nOrthogonality check: FAILED! Basis formed is not" + \
-            " orthogonal"
+            print("\nOrthogonality check: FAILED! Basis formed is not" + \
+            " orthogonal")
         else:
-            print "\nOrthogonality check: PASSED."
+            print("\nOrthogonality check: PASSED.")
         if output:
             return a
 
@@ -1786,8 +1786,8 @@ class Basis:
         """
         pts = array(pts)
         V = ones((len(pts), self.nm))
-        for i in xrange(self.nm):
-            for j in xrange(self.dim):
+        for i in range(self.nm):
+            for j in range(self.dim):
                 V[:, i] = V[:, i] * pts[:, j]**self.monoms[i][j]
         return V
 
@@ -1868,7 +1868,7 @@ class Basis:
             ax.axis([-1.1, 1.1, -1.1, 1.1])
 
         #Add vertex labels
-        for i in xrange(len(verts)):
+        for i in range(len(verts)):
             if (self.dim >= 3):
                 label = 'V%d (%d,%d,%d)' % (i, verts[i, 0], verts[i, 1], \
                                                             verts[i, 2])
@@ -1951,7 +1951,7 @@ class Basis:
 
             #Add vertex labels
             offset = 0.3
-            for i in xrange(len(verts)):
+            for i in range(len(verts)):
                 #Offset label location slightly (so not to overlap with volume
 #                labels)
                 x = xmid * offset + (1 - offset) * verts[i, 0]
@@ -2005,15 +2005,15 @@ def main():
     dim = int(dim)
     element = int(element)
     if dim < 1:
-        print "Please specify a dimensions greater than 1"
+        print("Please specify a dimensions greater than 1")
     if n < 0:
-        print "Please specify a polynomial degree greater than or equal to 0"
+        print("Please specify a polynomial degree greater than or equal to 0")
     if element < 0 | element > 3:
-        print "Please specify a predefined element from 0 to 3"
+        print("Please specify a predefined element from 0 to 3")
 
     basis = Basis(n, dim, element, False)
-    print 'aij=', basis.coeffs
-    print 'pqr=', basis.monoms
+    print('aij=', basis.coeffs)
+    print('pqr=', basis.monoms)
 
 ###############################################################################
 if __name__ == "__main__":
