@@ -154,6 +154,7 @@ def mk_nodal_pts(n, dim, element):
     basis.element = element
     basis.vol_verts, fid = mkb.int_el_pqr(element=element, dim=dim)
     basis.ed_verts = [basis.vol_verts[fid[i]] for i in range(len(fid))]
+
     #We always like mkb_uniformlocalpts for all elements because it gives us
     #the flocal structure -- tells use which points are on boundaries and such
     u_pts, flocal = mkb.uniformlocalpts(basis, n)
