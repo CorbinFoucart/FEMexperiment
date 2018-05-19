@@ -122,7 +122,7 @@ def sortrows(a, i=0, index_out=False, recurse=True):
     if recurse & (len(a[0]) > i + 1):
         for b in np.unique(a[:, i]):
             ids = a[:, i] == b
-            colids = range(i) + range(i+1, len(a[0]))
+            colids = list(range(i)) + list(range(i+1, len(a[0])))
             a[np.ix_(ids, colids)], I2 = sortrows(a[np.ix_(ids, colids)], 0, True, True)
             I[ids] = I[np.nonzero(ids)[0][I2]]
 

@@ -9,7 +9,6 @@ from collections import OrderedDict
 from src import util
 
 class base_dofh(object):
-
     def count_elm_dof(self):
         elm_dof = 0
         for master_elm, n_elm in zip(self.master, self.n_elm_type):
@@ -52,7 +51,6 @@ class base_dofh(object):
     def mk_cubature_points(self): pass
 
 class CG_dofh(base_dofh):
-
     def __init__(self, n, mesh, master_elms, master_eds):
         """
         @param n  the polynomial order of the basis
