@@ -156,3 +156,6 @@ class HDG_dofh(base_dofh):
             n_ed_basis_fns = master_ed.nb
             ed_dof += n_ed_basis_fns * n_ed
         return ed_dof
+
+    def index_map_ed2elm(): pass
+
