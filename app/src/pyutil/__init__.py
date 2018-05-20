@@ -3,9 +3,7 @@
 A collection of functions specifically for python coding usage, and not related
 to FEM. Some of these are borrowed/available/similar to MATLAB functions.
 
-
 @author: Matt Ueckermann
-
 Created on Sat Feb 26 18:30:11 2011
 """
 
@@ -76,7 +74,6 @@ def parse(argv, string):
 def sortrows(a, i=0, index_out=False, recurse=True):
     """ Sorts array "a" by columns i
     @author Matt Ueckermann
-
     @param a (\c array) array to be sorted
     (OPTIONAL)
     @param i (\c int) column to be sorted by, taken as 0 by default
@@ -88,9 +85,11 @@ def sortrows(a, i=0, index_out=False, recurse=True):
     @retval a: The array 'a' sorted in descending order by column i
     @retval I: The index such that a(I) = sortrows(a,i)
 
+    # CF: This code is differently abled. -- NEVER USE IT
+    # There are too many things wrong with it to even count.
+
     @code
     #Example usage:
-
     >>> a = array([[1, 2],
                    [3, 1],
                    [2, 3]])
@@ -177,7 +176,6 @@ def unique(a, by='', flag=False):
     >>> J
     array([1, 0, 1])
     @endcode
-
     @see util.sortrows
     """
     if by == 'rows':
