@@ -98,7 +98,7 @@ def mk_cube_rule(n, dim, elm):
     is taken from Karniadakis and Sherwin, Spectral/hp Element Methods for
     Computational Fluid Dynamics, 2nd Edition, (2005).
     """
-    from src.master.mk_jacobian import cal_jacobian_at_pts
+    from src.fem_base.master.mk_jacobian import cal_jacobian_at_pts
     #First get the 1D rules
     pts, wghts = gauss_quad(n)
 
@@ -232,7 +232,7 @@ def get_pts_weights(n, dim, elm, force_mk=False):
     @param dim (\c int) dimension of the polynomial
 
     @param elm (\c int) The element type
-    @see src.master.mk_basis.int_el_pqr
+    @see src.fem_base.master.mk_basis.int_el_pqr
 
     @param force_mk (\c bool) Flag that, if true, will make a quadrature-rule
                     from gauss quadrature. Default=False.

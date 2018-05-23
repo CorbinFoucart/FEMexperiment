@@ -597,7 +597,6 @@ class Master:
         #vector with the x-coordinates of the vertices of the first edge
         self.cube_pts2xy_ed = [None] * self.n_ed_type
 
-
         i = 0
         for ed_elm in pyutil.unique(self.basis.ed_type):
             #Get the cubature points and weights, and record how many we have
