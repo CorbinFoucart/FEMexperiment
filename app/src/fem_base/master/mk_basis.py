@@ -547,7 +547,6 @@ def uniformlocalpts(basis, refine_it=None):
             tru_ed_pts.tolist().index(flocnext.tolist())]
         orient_num = get_orient_num(ids, basis.dim, one_num=True)
         flocal[i] = orient[i][orient_num]
-
     return plocal, flocal
 
 ###############################################################################

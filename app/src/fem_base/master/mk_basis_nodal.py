@@ -364,7 +364,6 @@ def mk_nodal_pts(n, dim, element):
         #Done
         return newpts, flocal
 
-
 class Basis_nodal(mkb.Basis):
     """Make a nodal basis
     def __init__(self, n, dim, element, expand_monoms=False):

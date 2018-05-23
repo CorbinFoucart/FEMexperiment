@@ -98,7 +98,6 @@ def mk_cube_rule(n, dim, elm):
     is taken from Karniadakis and Sherwin, Spectral/hp Element Methods for
     Computational Fluid Dynamics, 2nd Edition, (2005).
     """
-    from src.fem_base.master.mk_jacobian import cal_jacobian_at_pts
     #First get the 1D rules
     pts, wghts = gauss_quad(n)
 
@@ -170,26 +169,10 @@ def mk_cube_rule(n, dim, elm):
 
 
             T = mk_mapcoords(pts, verts1, element=1, dim=dim)
-
             pts2 = dot(T, verts2).tolist()
-
-
-            #Previously, without changing alpha, I had to manually include
-            #the jacobian in the weights. Now this is no longer needed. i keep
-            #it in comments for reference. Also, look at svn r17 for the
-            #original code. The original code needs modification to exactly
-            #integrate prisms, and never worked for tets. The jacobian and
-            #point transformations where verified as correct, but the
-            #integration was always wrong.
-            #jac = cal_jacobian_at_pts(1, dim, verts2, pts2)
-            #wghts = wghts * jac.T
-            #wghts = (array(wghts) / 8.).tolist()
-
-            #Finally, assign x
             x = column_stack((pts2, wghts)).tolist()
 
         elif elm == 2:
-            #we have to do a coordinate transformation and include the Jacobian
 
             #First we have to grab the vertices of the square and the
             #triangle
@@ -207,19 +190,7 @@ def mk_cube_rule(n, dim, elm):
                 wghts = [[w] for x1,y,z,w in x]
 
             T = mk_mapcoords(pts, verts1, element=1, dim=dim)
-
             pts2 = dot(T, verts2).tolist()
-
-            #Previously, without changing alpha, I had to manually include
-            #the jacobian in the weights. Now this is no longer needed. i keep
-            #it in comments for reference. Also, look at svn r17 for the
-            #original code. The original code needs modification to exactly
-            #integrate prisms: need to use a order n+1 polynomial in the
-            #y-direction.
-            #jac = cal_jacobian_at_pts(1, dim, verts2, pts2)
-            #wghts = wghts * jac.T
-
-            #Finally, assign x
             x = column_stack((pts2, wghts)).tolist()
         return x
 
