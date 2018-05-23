@@ -40,12 +40,15 @@ def simpvol2D(t, p):
         d13 = p[t[ids2Dquad, 2], :] - p[t[ids2Dquad, 0], :]
         d34 = p[t[ids2Dquad, 3], :] - p[t[ids2Dquad, 2], :]
         d41 = p[t[ids2Dquad, 0], :] - p[t[ids2Dquad, 3], :]
-        vol[ids2Dquad] = (d12[0][:, 0] * d13[0][:, 1]\
+        vol[ids2Dquad] = (d12[0][:, 0] * d13[0][:, 1]
                         - d12[0][:, 1] * d13[0][:, 0]) / 2 \
-                        + (d34[0][:, 0] * d41[0][:, 1] \
+                        + (d34[0][:, 0] * d41[0][:, 1]
                         - d34[0][:, 1] * d41[0][:, 0]) / 2
     return vol
 
+####################################################################################################
+# fix T, P arrays -- remove duplicate elements, vertices CCW
+####################################################################################################
 def fix(t, p):
     """Fixes a faulty connectivity matrix and removes duplicate nodes
     1) remove duplicate elements from T
@@ -57,7 +60,7 @@ def fix(t, p):
     @retval p Corrected vertex matrix
 
     @author Matt Ueckermann
-    @author: Corbin Foucart -- partial re-writes
+    @author: Corbin Foucart -- re-write
     """
     t = eliminate_duplicate_elements(t)
     _, _, ids2Dquad = get_element_type_indices(t)
@@ -136,6 +139,9 @@ def sortrows_by_column(arr, col):
     """ sorts rows according to val in col """
     return arr[arr[:,col].argsort()]
 
+####################################################################################################
+# build mesh connectivity data structures
+####################################################################################################
 def connect_elm(elm, elm_type, dim, n_types=None):
     ''' Function to compute element to element connectivity
     @param  elm     The triangulation matrix that defines elements
