@@ -292,5 +292,4 @@ def connect_elm2ed(elm2elm, ed2ed):
 
     if (elm2ed[:, :5] < 0).any():
         print("something failed miserably :(")
-
     return elm2ed
