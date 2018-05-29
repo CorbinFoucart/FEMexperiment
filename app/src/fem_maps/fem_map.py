@@ -77,7 +77,7 @@ def _jacobian(shap_der_at_nodes, nodes):
     nb, dim, nelm = nodes.shape
     npts, _ = shap_der_at_nodes[0].shape
     J = np.zeros((npts, dim, dim, nelm))
-    for x_i in xrange(dim):
+    for x_i in range(dim):
         for xi_j, ddxi in enumerate(shap_der_at_nodes):
             J[:, x_i, xi_j, :] = np.dot(ddxi, nodes[:, x_i, :])
     return J
