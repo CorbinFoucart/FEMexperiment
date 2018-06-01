@@ -3,7 +3,7 @@
 
 class Master1D(object):
     """ minimalist 1D master object, for use in purely 1D problems
-    detailed explanation in tutorial/1D_modes_and_nodes.ipynb
+    detailed explanation in tutorial/1D_basis_and_master_element.ipynb
     """
     def __init__(self, p, nquad_pts=None, *args, **kwargs):
         self.p, self.nb = p, p+1
