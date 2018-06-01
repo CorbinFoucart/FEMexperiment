@@ -41,6 +41,14 @@ class Isoparametric_Mapping(FEM_Mapping):
     def elm_Jinv(self, elmType, elm): return self.Jinv[elmType][:,:,:,elm]
     def elm_detJ(self, elmType, elm): return self._detJ[elmType][:,elm]
 
+class Affine_Mapping(Isoparametric_Mapping):
+    """ this is only a mock class, it actually works like an isoparametric mapping,
+    but returns a single detJ and Jinv over each element
+    TODO: do the implementation of this in the normal cheap way.
+    """
+    def elm_Jinv(self, elmType, elm): return self.Jinv[elmType][0,:,:,elm]
+    def elm_detJ(self, elmType, elm): return self._detJ[elmType][0,elm]
+
 # helpers -- really these should be elsewhere
 def _Jinv_and_detJ(shap_der_list, dgnodes):
     """ computes the inverse Jacobian (Jinv) and detJ transforms at quadrature points
