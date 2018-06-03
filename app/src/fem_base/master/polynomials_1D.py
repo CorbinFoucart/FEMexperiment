@@ -1,9 +1,13 @@
-# construct generic lagrange interpolant
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import orthopy
 from scipy.interpolate import lagrange
 
 def Jacobi_Poly(r, alpha, beta, N):
     """ wraps orthopy to return Jacobi polynomial """
-    return orthopy.line_segment.tree_jacobi(r, n=N-1, 
+    return orthopy.line_segment.tree_jacobi(r, n=N-1,
         alpha=alpha, beta=beta, standardization='normal')
 
 def Jacobi_Poly_Derivative(r, alpha, beta, N):
@@ -23,7 +27,7 @@ def P_tilde(r, N):
     for j in range(N):
         P[:, j] = polyvals[j]
     return P.T
-    
+
 def Vandermonde1D(N, x):
     """ initialize 1D vandermonde Matrix Vij = phi_j(x_i)"""
     V1D = np.zeros((len(x), N))

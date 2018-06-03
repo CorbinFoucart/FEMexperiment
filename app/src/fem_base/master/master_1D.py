@@ -1,5 +1,9 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
+import numpy as np
+from src.fem_base.master.nodal_basis_1D import NodalBasis1D
+from src.fem_base.master.nodal_basis_1D import LegendreGaussLobatto, GaussLegendre
 
 class Master1D(object):
     """ minimalist 1D master object, for use in purely 1D problems
