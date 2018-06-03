@@ -4,7 +4,9 @@
 import numpy as np
 import orthopy
 
-def m2ij(p):
+import src.fem_base.master.barycentric_coord_tools as bct
+
+def mk_m2ij(p):
     """ returns a list A for which A[m] = (i,j) for orthopy polynomials psi_m"""
     return [(j,i) for i in range(p) for j in range(i+1)]
 
@@ -22,12 +24,16 @@ def ortho_triangle(bary, p):
           ...      ...      ...   (i, j)
     so we unpack the (i,j) into the index m via m2ij above.
     """
+    m2ij = mk_m2ij(p)
     ortho_output = orthopy.triangle.tree(bary, n=p, standardization='normal')
-    npts = bary.shape[1]
-    polys = np.zeros((npts, p))
-    for m, (i,j) in enumerate(m2ij(p)):
-        polys[:,m] = ortho_output[i][j,:]
+    npts, npolys = bary.shape[1], len(m2ij)
+    polys = np.zeros((npts, npolys))
+    for m, (i,j) in enumerate(m2ij):
+        polys[:,m] = ortho_output[j][i,:]
     return polys
 
-def P_tilde(r, N): pass
+def P_tilde(r, N):
+    """ generates the values of the orthonormal modal polynomials at pts r on the reference tri
+    """
+    pass
 

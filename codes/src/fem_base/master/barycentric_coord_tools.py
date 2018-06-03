@@ -28,7 +28,7 @@ def bary2cart(verts, _lambda):
     """
     npts = _lambda.shape[1]
     λ1, λ2, λ3 = _lambda[0,:], _lambda[1,:], _lambda[2,:]
-    x, y = np.zeros(npts), np.zeros(npts)b
+    x, y = np.zeros(npts), np.zeros(npts)
     (x1, y1), (x2, y2), (x3, y3) = verts
     x = λ1*x1 + λ2*x2 + λ3*x3
     y = λ1*y1 + λ2*y2 + λ3*y3
