@@ -1,0 +1,449 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, bm, mathtools}
+\usepackage{graphicx, subfig, wrapfig, mwe, epstopdf, pdfpages}
+%\usepackage[section]{placeins}
+\usepackage{enumerate}
+\usepackage{stmaryrd}
+\usepackage{algorithm, algpseudocode}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage[toc, nonumberlist]{glossaries}
+\newglossary{symbol}{sym}{sbl}{List of Discretization Symbols}
+\include{glossary}
+
+% set paragraph indentation to be 0 by default
+\setlength\parindent{0pt}
+
+% macros
+\newcommand{\bigO}[1]{\mathcal{O}\left(#1\right)}
+\newcommand{\LL}[1]{L^{2}\left(#1\right)}
+\newcommand{\LLW}{\LL{\Omega}}
+\newcommand{\Hdiv}[1]{H^{\text{div}}\left(#1\right)}
+\newcommand{\HdivW}{\Hdiv{\Omega}}
+\newcommand{\Th}{\mathcal{T}_h}
+\newcommand{\dTh}{\partial\mathcal{T}_h}
+\newcommand{\uhath}{\widehat{u}_h}
+\newcommand{\qhath}{\widehat{\bm{q}}_h}
+\newcommand{\lims}[2]{\bigg\rvert^{#1}_{#2}}
+\newcommand{\at}[1]{\lims{}{#1}}
+\def\rddots#1{\cdot^{\cdot^{\cdot{#1}}}}
+
+\newcommand{\LLN}[1]{\left\Vert #1 \right\Vert_{\LLW}}
+\newcommand{\HN}[1]{\left\Vert #1 \right\Vert_{H^1(\Omega)}}
+\newcommand{\HSN}[1]{\left| #1 \right|_{H^1(\Omega)}}
+\newcommand{\Hb}{H^{1,\text{broken}}}
+\newcommand{\HbW}{H^{1,\text{broken}}(\Omega)}
+
+% DG integrals, jumps 
+\newcommand{\Iint}[3]{\left(#1 ,\, #2 \right)_{#3}}
+\newcommand{\IintK}[2]{\Iint{#1}{#2}{K}}
+\newcommand{\Eint}[3]{\left\langle #1 ,\, #2 \right\rangle_{#3}}
+\newcommand{\EintK}[2]{\Eint{#1}{#2}{\partial K}}
+\newcommand{\jmp}[1]{\llbracket #1 \rrbracket}
+
+% physics
+\newcommand{\ReL}{\text{Re}_L}
+\newcommand{\Pra}{\text{Pr}}
+\newcommand{\Pe}{\text{Pe}}
+
+% restriction operator
+\newcommand\restr[2]{{ % we make the whole thing an ordinary symbol
+  \left.\kern-\nulldelimiterspace % automatically resize the bar with \right
+  #1 % the function
+  \vphantom{\big|} % pretend it's a little taller at normal size
+  \right|_{#2} % this is the delimiter
+  }}
+
+\title{Isoparametric Finite Element Mappings}
+\author{Corbin Foucart}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Isoparametric Mappings}
+
+\subsection{mapping from reference element to physical space}
+We express the transformation from reference space to physical space as a linear combination of the
+basis functions of the chosen finite element space. The concise statement can be written:
+\begin{align}
+  \bm{x}(\bm{\xi}) = \sum_{j=1}^{n_b} \bm{x}_j^K \psi_j(\bm{\xi})
+  \label{eq:isotrans}
+\end{align}
+
+Where $n_b$ is the number of nodal shape functions defined on the master element, and $\bm{x}_j^K$
+are the interpolation points on the physical space triangle. Note that the number of interpolation
+points in physical space must be the same as the number of basis functions. Therefore the
+`interpolation points' are the nodal points in physical space. We can clarify the above expression
+by writing the explicit statement in two dimensions:
+
+\begin{align}
+  x(\xi, \eta) = \sum_{j=1}^{n_b} x_j^K \psi_j(\xi, \eta) \\
+  y(\xi, \eta) = \sum_{j=1}^{n_b} y_j^K \psi_j(\xi, \eta)
+\end{align}
+
+So if we would like to map any set of points (here we choose quadrature points $\bm{\xi}_q$, but the
+approach is general and can be used for any set of points $\bm{\xi}_\alpha$ defined on the master
+element) defined on the master element to their corresponding points in physical space, we can use
+the mapping directly for each quadrature point $\bm{\xi}_q$:
+
+\begin{align}
+  \bm{x}(\bm{\xi}_q) = \sum_{j=1}^{n_b} \bm{x}_j^K \psi_j(\bm{\xi}_q) 
+  \qquad\rightarrow\qquad
+  \underbrace{
+  \begin{bmatrix}
+    \psi_1(\bm{\xi}_{1}), & \cdots, & \psi_{n_b}(\bm{\xi}_1) \\
+    \vdots & & \vdots  \\
+    \psi_1(\bm{\xi}_{q}), & \cdots, & \psi_{n_b}(\bm{\xi}_q)
+  \end{bmatrix}}_{G}
+  \begin{bmatrix}
+     x_1^K, & y_1^K\\
+     & \\
+     \vdots & \vdots  \\
+     & \\
+     x_{n_b}^K, & y_{n_b}^K\\
+   \end{bmatrix}
+\end{align}
+
+In order to map any set of points on the master element $\bm{\xi}_\alpha$ (indexed here by
+$\alpha$), we need the values of the nodal shape functions evaluated at those points
+$\bm{\xi}_\alpha$ and the physical space nodal points $\bm{x}_j^K$. Note that in the case of mapping
+the nodal points on the master element to the physical space nodes, note that the transformation
+matrix $G$ is simply the identity matrix $I$ (nodal basis), and the physical space nodal points are
+recovered.
+
+\subsection{computation of mapping derivatives, jacobian $J$}
+
+In this subsection, we use the explicit example of the derivatives of the isoparametric
+transformation in 2D, for clarity. The key idea is that since we have an explicit representation of
+our transformation in (\ref{eq:isotrans}), we can take the derivative of the transformation with
+respect to master element coordinates $\xi, \eta$
+
+\begin{align}
+  \frac{\partial x}{\partial \xi} =
+  \frac{\partial x(\xi,\eta)}{\partial \xi}
+  = \frac{\partial }{\partial \xi}\left[\sum_{j=1}^{n_b} x_j^K \psi_j(\xi, \eta)\right]
+  =\sum_{j=1}^{n_b} x_j^K \frac{\partial \psi_j}{\partial \xi}
+  \label{eq:dxdxi}
+\end{align}
+
+The last expression of (\ref{eq:dxdxi}) is easily computable since we know both the derivates of the
+shape functions $\psi_j$ on the master element with respect to the master coordinates $\xi, \eta$.
+The Jacobian matrix of the transformation from the reference element $\widehat{K}$ to the physical
+space element $K$ at a specific point $\bm{x}_\alpha$ with corresponding point $\bm{\xi}_\alpha$ on
+the master element can be written
+
+\begin{align}
+  J\big|_{\bm{x}_\alpha}
+  =
+  \begin{bmatrix}
+    \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\
+    \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \\
+  \end{bmatrix}_{\bm{x}_\alpha}
+  =
+  \begin{bmatrix}
+    \sum\limits_{j=1}^{n_b} x_j^K \frac{\partial \psi_j(\bm{\xi}_\alpha)}{\partial \xi} &
+    \sum\limits_{j=1}^{n_b} y_j^K \frac{\partial \psi_j(\bm{\xi}_\alpha)}{\partial \xi} \\
+    \sum\limits_{j=1}^{n_b} x_j^K \frac{\partial \psi_j(\bm{\xi}_\alpha)}{\partial \eta} &
+    \sum\limits_{j=1}^{n_b} y_j^K \frac{\partial \psi_j(\bm{\xi}_\alpha)}{\partial \eta} \\
+  \end{bmatrix}
+  %\qquad\rightarrow\qquad
+  \;\rightarrow\;
+  \begin{bmatrix}
+    \frac{\partial \psi_1(\bm{\xi}_\alpha)}{\partial \xi}
+    & \cdots &
+    \frac{\partial \psi_{n_b}(\bm{\xi}_\alpha)}{\partial \xi}\\
+    \frac{\partial \psi_1(\bm{\xi}_\alpha)}{\partial \eta}
+    & \cdots &
+    \frac{\partial \psi_{n_b}(\bm{\xi}_\alpha)}{\partial \eta}\\
+  \end{bmatrix}
+  \begin{bmatrix}
+     x_1^K, & y_1^K\\
+     & \\
+     \vdots & \vdots  \\
+     & \\
+     x_{n_b}^K, & y_{n_b}^K\\
+   \end{bmatrix}
+   \label{eq:Jcomp}
+\end{align}
+
+Note that (\ref{eq:Jcomp}) is directly computable from the derivatives of the shape functions,
+evaluated at the point of interest $\bm{\xi}_\alpha$ on the master element, as well as the physical
+nodal points. In practice, we evaluate the derivatives of the nodal shape functions at the
+quadrature points and nodal points (for quadrature-based and quadrature-free integrals,
+respectively).  We will denote $\det(J)$ as $|J|$. For every point pairing $\bm{\xi}_\alpha,\,
+\bm{x}_\alpha$ on the reference element and physical space (respectively), once we have computed
+$J(\bm{x}_\alpha)$, computing $|J|$ at $\bm{x}_\alpha$ is simply a matter of computing the
+determinant. \\
+
+
+\subsection{computation of inverse mapping derivatives, $J^{-1}$}
+
+We will explicitly need to compute the derivates of the inverse mapping from physical space to
+reference space (discussed in \ref{ssec:integral_operators}) which arises from the need to compute
+terms of the form $\frac{\partial \phi_i}{\partial x}$, i.e., the derivatives of the global nodal
+basis functions with respect to physical space coordinates. The difficulty is that computing and
+storing the derivatives of all global basis functions at every point of interest in the
+computational domain would be enormously expensive. Instead, we wish to map the derivatives of the
+global basis functions to the derivatives of the shape functions on the master element, e.g.,
+$\frac{\partial \psi_i(\bm{\xi})}{\partial \xi}$, which are known and stored. We can link the two
+via the chain rule. In one spatial dimension, (\ref{eq:isotrans}) can be applied with the chain rule
+to conclude
+
+\begin{align}
+  \frac{\partial \phi_i}{\partial \xi} 
+  = \frac{\partial \phi_i}{\partial x} \frac{\partial x}{\partial \xi}
+\end{align}
+
+Since we have the functional dependence $\phi_i(x(\xi))$. In two dimensions, we have the functional
+dependence 
+
+\begin{figure}[thp!]
+  \centering \includegraphics[width=0.3\textwidth]{img/func_dependence.pdf}
+\end{figure}
+
+Hence we can write the chain rule statement applied over the isoparametric mapping as 
+\begin{align}
+  \frac{\partial \phi_i}{\partial \xi}
+  = \frac{\partial \phi_i}{\partial x} \frac{\partial x}{\partial \xi}
+  + \frac{\partial \phi_i}{\partial y} \frac{\partial y}{\partial \xi}, \qquad
+  \frac{\partial \phi_i}{\partial \eta}
+  = \frac{\partial \phi_i}{\partial x} \frac{\partial x}{\partial \eta}
+  + \frac{\partial \phi_i}{\partial y} \frac{\partial y}{\partial \eta}
+\end{align}
+
+\begingroup
+\renewcommand*{\arraystretch}{1.5}
+\begin{align}
+  \Rightarrow
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial \xi} \\
+    \frac{\partial \phi_i}{\partial \eta}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \frac{\partial x}{\partial \xi} & \frac{\partial y}{\partial \xi} \\
+    \frac{\partial x}{\partial \eta} & \frac{\partial y}{\partial \eta} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial x} \\
+    \frac{\partial \phi_i}{\partial y} \\
+  \end{bmatrix}
+  =J
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial x} \\
+    \frac{\partial \phi_i}{\partial y} \\
+  \end{bmatrix}
+\end{align}
+\endgroup
+
+Where $J$ is the jacobian matrix computed at a physical space point $\bm{x}_\alpha$ in the previous
+section. We can directly invert this expression to find the inverse transform $J^{-1}$, which will
+allow us to compute the derivatives of the global basis functions in terms of the derivatives of the
+master element shape functions.
+
+\begingroup
+\renewcommand*{\arraystretch}{1.5}
+\begin{align}
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial x} \\
+    \frac{\partial \phi_i}{\partial y} \\
+  \end{bmatrix}
+  =J^{-1}
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial \xi} \\
+    \frac{\partial \phi_i}{\partial \eta}
+  \end{bmatrix}
+\end{align}
+\endgroup
+
+Which can be explicitly written as 
+\begin{align}
+    \begin{split}
+    \frac{\partial \phi_i}{\partial x}
+    &= \frac{\partial \phi_i}{\partial \xi} J^{-1}_{11}
+    + \frac{\partial \phi_i}{\partial \eta} J^{-1}_{12} \\
+    \frac{\partial \phi_i}{\partial y}
+    &= \frac{\partial \phi_i}{\partial \xi} J^{-1}_{21}
+    + \frac{\partial \phi_i}{\partial \eta} J^{-1}_{22}
+    \end{split}
+    \label{eq:def_inv_der}
+\end{align}
+
+Extension to the general case should be apparent from the specific two-dimensional examples.
+
+\subsection{continuous integral operators} \label{ssec:integral_operators}
+
+We can write the forms of the continuous integral operators by directly substituting the inverted
+chain rule relations (\ref{eq:def_inv_der}) into the physical space integral expressions.
+
+  \subsubsection{interior operators}
+
+  Weak laplacian:
+  \begin{align}
+    \begin{split}
+    \int_{K}^{} \nabla\phi_j\cdot\nabla\phi_i \,d\bm{x}
+    &= \int_{K}^{} \left( \frac{\partial \phi_i}{\partial x} \frac{\partial \phi_j}{\partial x}
+    + \frac{\partial \phi_i}{\partial y} \frac{\partial \phi_j}{\partial y}\right)\,d\bm{x} \\
+    &=
+    \int_{\widehat{K}} 
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi} J^{-1}_{11} 
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta} J^{-1}_{12} \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi} J^{-1}_{11} 
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta} J^{-1}_{12} \right) 
+    |J|\,d\bm{\widehat{x}} \\
+    &\qquad + 
+    \int_{\widehat{K}} 
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi} J^{-1}_{21} 
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta} J^{-1}_{22} \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi} J^{-1}_{21} 
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta} J^{-1}_{22} \right) 
+    |J|\,d\bm{\widehat{x}} \\
+    \end{split}
+    \label{eq:cts_weak_laplacian}
+  \end{align}
+
+  Convection-like derivatives:
+  \begin{align}
+    \begin{split}
+      \int_{K}^{} \nabla\phi_i\cdot \bm{\phi}_j \,d\bm{x}
+    &= \int_{K}^{} \left( \frac{\partial \phi_i}{\partial x} \phi_j
+    + \frac{\partial \phi_i}{\partial y} \phi_j \right)\,d\bm{x} \\
+    &= \int_{\widehat{K}} 
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi} J^{-1}_{11} 
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta} J^{-1}_{12} \right) \phi_j
+    |J|\,d\bm{\widehat{x}} 
+    + \int_{\widehat{K}} 
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi} J^{-1}_{21} 
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta} J^{-1}_{22} \right) \phi_j
+    |J|\,d\bm{\widehat{x}} \\
+    \end{split}
+    \label{eq:cts_weak_convection}
+  \end{align}
+
+  Source term integration:
+
+  \begin{align}
+    \int_{K}^{} f_\Omega \phi_i\, d\bm{x} 
+    = \int_{\widehat{K}}^{} \widehat{f}_\Omega\, \widehat{\phi_i} |J| \, d\bm{\widehat{x}}
+    = \int_{\widehat{K}}^{} f_\Omega(\bm{\xi}(\bm{x})) \widehat{\phi_i} |J| \, d\bm{\widehat{x}}
+  \end{align}
+
+  Where there is some subtlety in $\widehat{f}_\Omega$, since we are integrating the
+  $f_\Omega(\bm{x})$ over some $K$ mapped to the reference element $\widehat{K}$. 
+  This inverse mapping $\bm{\xi}(\bm{x})$ maps physical space locations to their corresponding
+  locations on the master element. While in general, this inverse mapping is equivalent to solving a
+  non-linear set of equations, in practice, we don't need to compute the inverse map, because the
+  points at which we evaluate the function in physical space (either nodal points or quadrature
+  points) are mapped from the master element nodal or quadrature points -- i.e., the points on the
+  master element which correspond to the physical space nodal/quadrature points are simply the
+  nodal/quadrature points on the master element, by construction!
+
+\subsection{discrete integral operators} \label{ssec:disc_integral_operators}
+  \subsubsection{quadrature-based operators}
+
+  We can choose a classical quadrature scheme (points and weights defined on the master element) and
+  approximate the continuous form of the weak laplacian operator (\ref{eq:cts_weak_laplacian})
+  accordingly. We done the master element quadrature points by $\bm{\xi}_q$ and corresponding mapped
+  physical space quadrature points $\bm{x}_q$.\\
+
+  Weak laplacian:
+  \begin{align}
+    \begin{split}
+    &\int_{K}^{} \nabla\phi_j\cdot\nabla\phi_i \,d\bm{x} 
+    \approx
+    \sum_{q=1}^{n_q}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{11}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{12}(\bm{x}_q) \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{11}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{12}(\bm{x}_q) \right) 
+    w_q |J|\bigg|_{\bm{x}_q}\\
+    &\qquad+ 
+    \sum_{q=1}^{n_q}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{21}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{22}(\bm{x}_q) \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{21}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{22}(\bm{x}_q) \right) 
+    w_q|J|\bigg|_{\bm{x}_q}
+    \end{split}
+    \label{eq:disc_weak_laplacian_quad}
+  \end{align}
+
+  Convection-like:
+  \begin{align}
+    \begin{split}
+      \int_{K}^{} \nabla\phi_i\cdot \bm{\phi}_j \,d\bm{x}
+    &\approx \sum_{q=1}^{n_q}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{11}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{12}(\bm{x}_q) \right)
+    \phi_j(\bm{\xi}_q) w_q|J|\bigg|_{\bm{x}_q} \\
+    & \qquad + \sum_{q=1}^{n_q}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}_q) J^{-1}_{21}(\bm{x}_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}_q) J^{-1}_{22}(\bm{x}_q) \right)
+    \phi_j(\bm{\xi}_q) w_q |J|\bigg|_{\bm{x}_q}
+    \end{split}
+    \label{eq:disc_weak_convection_quad}
+  \end{align}
+
+  \subsubsection{quadrature-free operators}
+
+  It is possible to form integral operators without using a ``traditional'' quadrature scheme (points
+  and weights chosen on the master element distinct from the nodal points), such as described in
+  \cite{ueckermann_lermusiaux_JCP2016}. In the discussion above, we were careful to describe the
+  isoparametric mapping at arbitrary spatial locations.  Instead of computing the $\det J$ and
+  $J^{-1}$ quantities at the quadrature points in physical space, we compute the data at the nodal
+  points only. \\
+
+  Because the scheme in \cite{ueckermann_lermusiaux_JCP2016} is used in a mixed-method finite
+  element formulation (HDG) using the so-called ``strong form'' DG-FEM, the weak laplacian as
+  written above does not appear. Instead, the integral derivative operators are similar to the
+  convection-like operators in (\ref{eq:cts_weak_convection}). \\
+
+  Convection-like:
+  \begin{align}
+    \begin{split}
+      \int_{K}^{} \nabla\phi_i\cdot \bm{\phi}_j \,d\bm{x}
+    &\approx \sum_{q=1}^{n_b}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{11}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{12}(\bm{x}^n_q) \right)
+    \phi_j(\bm{\xi}^n_q) |J|\bigg|_{\bm{x}^n_q} \\
+    & \qquad + \sum_{q=1}^{n_b}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{21}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{22}(\bm{x}^n_q) \right)
+    \phi_j(\bm{\xi}^n_q) |J|\bigg|_{\bm{x}^n_q}
+    \end{split}
+    \label{eq:disc_weak_laplacian_qf_mat}
+  \end{align}
+
+  Where we emphasize that there are no weights and all quantities of interest are evaluated at nodal
+  points $\bm{\xi}^n_q$ or $\bm{x}^n_q$ rather than quadrature points. This works acceptably for
+  straight-sided elements, but does it work for curved elements? by analogy, we create the
+  quadrature free weak laplacian operator. \\
+
+  Weak laplacian (analogy):
+  \begin{align}
+    \begin{split}
+    &\int_{K}^{} \nabla\phi_j\cdot\nabla\phi_i \,d\bm{x} 
+    \approx
+    \sum_{q=1}^{n_b}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{11}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{12}(\bm{x}^n_q) \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{11}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{12}(\bm{x}^n_q) \right) 
+    |J|\bigg|_{\bm{x}^n_q}\\
+    &\qquad+ 
+    \sum_{q=1}^{n_b}
+    \left( \frac{\partial \widehat{\phi_i}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{21}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_i}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{22}(\bm{x}^n_q) \right) 
+    \left( \frac{\partial \widehat{\phi_j}}{\partial \xi}(\bm{\xi}^n_q) J^{-1}_{21}(\bm{x}^n_q)
+    + \frac{\partial \widehat{\phi_j}}{\partial \eta}(\bm{\xi}^n_q) J^{-1}_{22}(\bm{x}^n_q) \right) 
+    |J|\bigg|_{\bm{x}^n_q}
+    \end{split}
+    \label{eq:disc_weak_laplacian_qf}
+  \end{align}
+
+% bibliography
+\nocite{*}
+\bibliography{isoparametric_mappings.bib}{
+  \bibliographystyle{plain}}
+\end{document}
