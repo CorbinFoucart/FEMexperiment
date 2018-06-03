@@ -6,7 +6,9 @@ import orthopy
 from scipy.interpolate import lagrange
 
 def Jacobi_Poly(r, alpha, beta, N):
-    """ wraps orthopy to return Jacobi polynomial """
+    """ wraps orthopy to return Jacobi polynomial
+    @param r pts at which to evaluate the jacobi polynomial
+    """
     return orthopy.line_segment.tree_jacobi(r, n=N-1,
         alpha=alpha, beta=beta, standardization='normal')
 
