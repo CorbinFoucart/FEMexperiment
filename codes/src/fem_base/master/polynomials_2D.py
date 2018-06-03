@@ -5,6 +5,10 @@ import numpy as np
 import orthopy
 
 import src.fem_base.master.barycentric_coord_tools as bct
+from src.fem_base.master.master_2D import MASTER_ELEMENT_VERTICES
+
+# define vertices on master elements as specified in master_2D.py
+MASTER_TRI_VERTS = MASTER_ELEMENT_VERTICES['TRIANGLE']
 
 def mk_m2ij(p):
     """ returns a list A for which A[m] = (i,j) for orthopy polynomials psi_m"""
@@ -32,8 +36,12 @@ def ortho_triangle(bary, p):
         polys[:,m] = ortho_output[j][i,:]
     return polys
 
-def P_tilde(r, N):
+def P_tilde(pts, p, verts=MASTER_TRI_VERTS):
     """ generates the values of the orthonormal modal polynomials at pts r on the reference tri
+    @param verts  tuple of tuples specifying the CCW vertices of the triangle in question
+    @param pts  points defined on the triangle defd by verts (npts, 2)
+    @param p  order of the orthonormal polynomial basis to be generated
     """
-    pass
-
+    bary_coords = bct.cart2bary(verts, pts.T)
+    polys = ortho_triangle(bary_coords, p)
+    return polys
