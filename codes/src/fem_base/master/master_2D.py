@@ -9,3 +9,7 @@ MASTER_ELEMENT_VERTICES = {
     'QUAD': ((-1, -1), (1, -1), (1, 1), (-1, 1))
 }
 
+class Master2D(object): pass
+class Master2DTriangle(Master2D): pass
+class Master2DQuad(Master2D): pass
+

@@ -21,9 +21,7 @@ class NodalBasis2DTriangle(NodalBasis2D):
         self.p, self.nb = p, int((p+1)*(p+2)/2.)
         self.verts = MASTER_ELEMENT_VERTICES['TRIANGLE']
         if nodal_locations == 'UNIFORM':
-            uniform_bary_coords = bct.uniform_bary_coords(p)
-            xp, yp = bct.bary2cart(self.verts, uniform_bary_coords)
-            self.nodal_pts = np.vstack((xp, yp)).T
+            self.nodal_pts = self.mk_uniform_nodal_pts()
 
     def shape_functions_at_pts(self, pts):
         """ computes values of shape functions at pts (npts, 2) """
@@ -42,6 +40,25 @@ class NodalBasis2DTriangle(NodalBasis2D):
         Vinv = np.linalg.inv(V)
         shap_der = [np.dot(dψ_dξ, Vinv), np.dot(dψ_dη, Vinv)]
         return shap_der
+
+    def mk_uniform_nodal_pts(self):
+        """ make uniformly spaced pts (barycentric sense) on the master element """
+        uniform_bary_coords = bct.uniform_bary_coords(self.p)
+        xp, yp = bct.bary2cart(self.verts, uniform_bary_coords)
+        nodal_pts = np.vstack((xp, yp)).T
+        return nodal_pts
+
+    def mk_warped_nodal_pts(self):
+        """ create uniform nodal points, then shift them """
+        uniform_bary_coords = bct.uniform_bary_coords(self.p)
+        shift = self.warpshift_pts(uniform_bary_coords)
+
+
+    def warpshift_pts(self, bary_coords):
+        """ shift the nodal points for better interpolation behavior
+        @param bary_coords  the barycentric coordinates of the points to be shifted
+        """
+        pass
 
 class NodalBasis2DQuad(NodalBasis2D):
     def __init__(self):
