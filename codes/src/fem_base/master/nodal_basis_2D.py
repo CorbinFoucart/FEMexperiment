@@ -34,13 +34,14 @@ class NodalBasis2DTriangle(NodalBasis2D):
         return shap
 
     def shape_function_derivatives_at_pts(self, pts):
-        """ compute the derivatives of shape fns in ξ, η directions at pts """
+        """ compute the derivatives of shape fns in ξ, η directions at pts
+        returns list of derivatives of shape functions indexed by coord direction
+        """
         V = p2d.Vandermonde2D(self.nodal_pts, self.p)
         dψ_dξ, dψ_dη = p2d.GradVandermonde2D(p=self.p, ξ=pts[:,0], η=pts[:,1])
         Vinv = np.linalg.inv(V)
-        shap_der = [np.dot(dψ_dξ, Vinv) np.dot(dψ_dη, Vinv)]
+        shap_der = [np.dot(dψ_dξ, Vinv), np.dot(dψ_dη, Vinv)]
         return shap_der
-
 
 class NodalBasis2DQuad(NodalBasis2D):
     def __init__(self):
