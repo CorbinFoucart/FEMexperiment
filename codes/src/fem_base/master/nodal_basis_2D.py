@@ -58,11 +58,12 @@ class NodalBasis2DTriangle(NodalBasis2D):
             Nodes2D.m, xytors.m directly rather than rescale things. This is done
             for readability in comparison to the Hesthaven text.
         """
+        p = self.p
         λ1, λ2, λ3 = bct.uniform_bary_coords(p)
         x, y = -λ2 + λ3, (-λ2 - λ3 + 2*λ1) / np.sqrt(3)
 
         # warping and blending functions
-        wt1, wt2, wt3 = _w_tilde(p, λ3-λ2), 0.5*_w_tilde(p, λ1-λ3), 0.5*_w_tilde(p,λ2-λ1)
+        wt1, wt2, wt3 = self._w_t(p, λ3-λ2), 0.5*self._w_t(p, λ1-λ3), 0.5*self._w_t(p,λ2-λ1)
         b1, b2, b3 = 4*λ3*λ2, 4*λ3*λ1, 4*λ2*λ1
         w1, w2, w3 = wt1*b1*(1+(α*λ1)**2), wt2*b2*(1+(α*λ2)**2), wt3*b3*(1+(α*λ3)**2)
 
@@ -75,7 +76,7 @@ class NodalBasis2DTriangle(NodalBasis2D):
         r, s = -λ2 + λ3 - λ1, -λ2 -λ3 + λ1
         return r, s
 
-    def _w_tilde(p, pts):
+    def _w_t(self, p, pts):
         """ evaluate 1D warp factor w_tilde at order N at pts
         NOTE: see Hesthaven p.176
         """
