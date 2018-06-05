@@ -43,5 +43,8 @@ def P_tilde(pts, p, verts=MASTER_TRI_VERTS):
     @param p  order of the orthonormal polynomial basis to be generated
     """
     bary_coords = bct.cart2bary(verts, pts.T)
-    polys = ortho_triangle(bary_coords, p)
+    polys = ortho_triangle(bary_coords, p+1)
     return polys
+
+def Vandermonde2D(pts, p, verts=MASTER_TRI_VERTS):
+    return P_tilde(pts, p, verts)

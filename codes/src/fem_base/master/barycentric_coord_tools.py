@@ -5,7 +5,7 @@ import numpy as np
 
 def cart2bary(verts, pts):
     """ retrns barycentric coords of pt on a tri w/ vertices verts
-    @param verts tuple of tuples specifying verts
+    @param verts  tuple of tuples specifying verts
     @param pt  numpy array of point on triangle shape (2, npts)
     """
     npts = pts.shape[1]
