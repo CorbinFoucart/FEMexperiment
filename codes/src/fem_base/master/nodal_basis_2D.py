@@ -32,7 +32,7 @@ class NodalBasis2DTriangle(NodalBasis2D):
         VTi = np.linalg.inv(V.T)
         P_tilde = p2d.P_tilde(pts, self.p)[:, 0:self.nb]
         shap = np.dot(VTi, P_tilde.T)
-        return shap
+        return shap.T
 
     def shape_function_derivatives_at_pts(self, pts):
         """ compute the derivatives of shape fns in ξ, η directions at pts

@@ -8,6 +8,7 @@ import src.fem_base.master.nodal_basis_2D as nb2d
 import src.fem_base.master.barycentric_coord_tools as bct
 
 class Master2D(object):
+
     def mk_shap_and_dshap_at_pts(self, pts):
         shap = self.basis.shape_functions_at_pts(pts)
         dshap = self.basis.shape_function_derivatives_at_pts(pts)
@@ -20,11 +21,24 @@ class Master2DTriangle(Master2D):
         self.basis = nb2d.NodalBasis2DTriangle(self.p, **kwargs)
         self.nb, self.verts = self.basis.nb, self.basis.verts
         self.nodal_pts = self.basis.nodal_pts
-        self.nq = 2*self.p + 2 if nquad_pts is None else nquad_pts
+        self.nq = 2*self.p +2 if nquad_pts is None else nquad_pts
         self.quad_pts, self.wghts = triangle_quadrature(self.nq, self.verts)
 
         # shape functions at nodal and quadrature points
         self.shap_quad,  self.dshap_quad = self.mk_shap_and_dshap_at_pts(self.quad_pts)
+
+        # mass, stiffness matrices
+        self.M, self.S, self.K = self.mk_M(), self.mk_S(), self.mk_K()
+        #self.Minv = np.linalg.inv(self.M)
+
+    def mk_M(self):
+        """ the mass matrix, M_ij = (phi_i, phi_j) """
+        shapw = np.dot(np.diag(self.wghts), self.shap_quad)
+        M = np.dot(self.shap_quad.T, shapw)
+        return M
+
+    def mk_S(self): pass
+    def mk_K(self): pass
 
 
 
@@ -35,7 +49,7 @@ def triangle_quadrature(n, verts):
     """ look up / compute quadrature rule over the triangle, order n
     @param n  the order of polynomial which should be integrated exactly
     @param verts  tuple of tuples defining the master element
-    NOTE: leverages quadpy
+    NOTE: leverages quadpy, 2*weights
     """
     if n > 50:
         raise NotImplementedError
@@ -43,4 +57,4 @@ def triangle_quadrature(n, verts):
     bary, weights = qr.bary, qr.weights
     xq, yq = bct.bary2cart(verts=verts, _lambda=bary.T)
     points = np.vstack((xq, yq)).T
-    return points, weights
+    return points, 2*weights
