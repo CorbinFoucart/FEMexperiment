@@ -73,8 +73,9 @@ class NodalBasis2DTriangle(NodalBasis2D):
 
         # map back to master element from equilateral triangle
         λ1, λ2, λ3 = (np.sqrt(3)*y+1)/3, (-3*x-np.sqrt(3)*y+2)/6, (3*x-np.sqrt(3)*y+2)/6
-        r, s = -λ2 + λ3 - λ1, -λ2 -λ3 + λ1
-        return r, s
+        xp, yp = -λ2 + λ3 - λ1, -λ2 -λ3 + λ1
+        nodal_pts = np.vstack((xp, yp)).T
+        return nodal_pts
 
     def _w_t(self, p, pts):
         """ evaluate 1D warp factor w_tilde at order N at pts
