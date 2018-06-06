@@ -17,7 +17,6 @@ class Master1D(object):
         self.quad_pts, self.wghts = GaussLegendre(self.nq)
 
         # shape functions at nodal and quadrature points
-        self.shap_nodal, self.dshap_nodal = self.mk_shap_and_dshap_at_pts(self.nodal_pts)
         self.shap_quad,  self.dshap_quad = self.mk_shap_and_dshap_at_pts(self.quad_pts)
 
         # mass, stiffness matrices
