@@ -4,13 +4,14 @@
 import numpy as np
 
 # vertex definitions for master Tri and Quad, over which to construct the bases
-from src.fem_base.master.master_2D import MASTER_ELEMENT_VERTICES
 import src.fem_base.master.barycentric_coord_tools as bct
 import src.fem_base.master.polynomials_2D as p2d
+import src.fem_base.master.nodal_basis_1D as NB1D
 
 class NodalBasis2D(object): pass
 
 class NodalBasis2DTriangle(NodalBasis2D):
+    verts = ((-1, -1), (1, -1), (-1, 1))
     def __init__(self, p, nodal_locations='UNIFORM'):
         """ creates a nodal basis over master element verts
         @param p  polynomial order of the nodal basis
@@ -19,7 +20,6 @@ class NodalBasis2DTriangle(NodalBasis2D):
             WARPED:  shifted points for better interpolation behavior (Hesthaven 2008)
         """
         self.p, self.nb = p, int((p+1)*(p+2)/2.)
-        self.verts = MASTER_ELEMENT_VERTICES['TRIANGLE']
         if nodal_locations == 'UNIFORM':
             self.nodal_pts = self.mk_uniform_nodal_pts()
         elif nodal_locations == 'WARPED':
@@ -94,7 +94,6 @@ class NodalBasis2DTriangle(NodalBasis2D):
         return wr
 
 class NodalBasis2DQuad(NodalBasis2D):
-    def __init__(self):
-        self.basis_domain_verts = MASTER_ELEMENT_VERTICES['QUAD']
+    def __init__(self): pass
 
 

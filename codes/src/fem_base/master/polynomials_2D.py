@@ -5,10 +5,7 @@ import numpy as np
 import orthopy
 
 import src.fem_base.master.barycentric_coord_tools as bct
-from src.fem_base.master.master_2D import MASTER_ELEMENT_VERTICES
-
-# define vertices on master elements as specified in master_2D.py
-MASTER_TRI_VERTS = MASTER_ELEMENT_VERTICES['TRIANGLE']
+import src.fem_base.master.polynomials_1D as p1d
 
 def mk_m2ij(p):
     """ returns a list A for which A[m] = (i,j) for orthopy polynomials psi_m"""
@@ -36,7 +33,7 @@ def ortho_triangle(bary, p):
         polys[:,m] = ortho_output[j][i,:]
     return polys
 
-def P_tilde(pts, p, verts=MASTER_TRI_VERTS):
+def P_tilde(pts, p, verts=((-1, -1), (1, -1), (-1, 1))):
     """ generates the values of the orthonormal modal polynomials at pts r on the reference tri
     @param verts  tuple of tuples specifying the CCW vertices of the triangle in question
     @param pts  points defined on the triangle defd by verts (npts, 2)
@@ -63,8 +60,8 @@ def poly_gradient_simplex(a, b, i, j):
     """ takes derivatives of modal basis polys w/r/t ξ, η
     transcribed from GradSimplex2D in Hesthaven
     """
-    Pa, dP_da = Jacobi_Poly(a,0,    0,i)[-1], Jacobi_Poly_Derivative(a,0    ,0,i)[-1]
-    Pb, dP_db = Jacobi_Poly(b,2*i+1,0,j)[-1], Jacobi_Poly_Derivative(b,2*i+1,0,j)[-1]
+    Pa, dP_da = p1d.Jacobi_Poly(a,0,    0,i)[-1], p1d.Jacobi_Poly_Derivative(a,0    ,0,i)[-1]
+    Pb, dP_db = p1d.Jacobi_Poly(b,2*i+1,0,j)[-1], p1d.Jacobi_Poly_Derivative(b,2*i+1,0,j)[-1]
 
     # d/dξ = da/dξ * d/da + db/dξ * d/db = 2/(1-b) d/da
     dψ_dξ = dP_da * Pb
@@ -86,7 +83,7 @@ def poly_gradient_simplex(a, b, i, j):
     dψ_dη *= 2**(i+0.5)
     return [dψ_dξ, dψ_dη]
 
-def Vandermonde2D(pts, p, verts=MASTER_TRI_VERTS):
+def Vandermonde2D(pts, p, verts=((-1, -1), (1, -1), (-1, 1))):
     """ evaluates the vandermonde matrix at the specified points """
     return P_tilde(pts, p, verts)
 
