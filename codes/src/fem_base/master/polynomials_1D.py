@@ -6,7 +6,7 @@ import orthopy
 from scipy.interpolate import lagrange
 
 def Jacobi_Poly(r, alpha, beta, N):
-    """ wraps orthopy to return Jacobi polynomial
+    """ wraps orthopy to return list of Jacobi polynomials
     @param r pts at which to evaluate the jacobi polynomial
     """
     return orthopy.line_segment.tree_jacobi(r, n=N-1,
@@ -22,6 +22,21 @@ def Jacobi_Poly_Derivative(r, alpha, beta, N):
         gamma = np.sqrt(n * (n + alpha + beta + 1))
         dp.append(gamma * Jacobi_P[n-1])
     return dp
+
+# the following functions are in the style of Hesthaven for
+# transcription of his functions.
+def JacobiP(pts, α, β, N):
+    """ same functionality as Hesthaven """
+    return Jacobi_Poly(pts, α, β, N+1)[-1]
+
+def GradJacobiP(pts, α, β, N):
+    """ copy functionality from hesthaven """
+    dp = np.zeros(len(pts))
+    if N==0:
+        return dp
+    else:
+        dp = np.sqrt(N*(N+α+β+1)) * JacobiP(pts,α+1,β+1,N-1)
+        return dp
 
 def P_tilde(r, N):
     P = np.zeros((len(r), N))
