@@ -28,9 +28,9 @@ class NodalBasis2DTriangle(NodalBasis2D):
 
     def shape_functions_at_pts(self, pts):
         """ computes values of shape functions at pts (npts, 2) """
-        V = p2d.Vandermonde2D(self.nodal_pts, self.p)
+        V = p2d.Vandermonde2D(N=self.p, ξ=self.nodal_pts[:,0], η=self.nodal_pts[:,1])
         VTi = np.linalg.inv(V.T)
-        P_tilde = p2d.P_tilde(pts, self.p)[:, 0:self.nb]
+        P_tilde = p2d.Vandermonde2D(N=self.p, ξ=pts[:,0], η=pts[:,1])
         shap = np.dot(VTi, P_tilde.T)
         return shap.T
 
