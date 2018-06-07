@@ -76,7 +76,7 @@ def GradVandermonde2D(p, ξ, η):
     counter = 0
     for i in range(p+1):
         for j in range(p-i+1):
-            dψ_dξ, dψ_dη = poly_gradient_simplex(a, b, i, j)
+            dψ_dξ, dψ_dη = Simplex2DPolyGradient(a, b, i, j)
             dVξ[:,counter] = dψ_dξ
             dVη[:,counter] = dψ_dη
             counter += 1
