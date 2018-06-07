@@ -23,14 +23,17 @@ def Jacobi_Poly_Derivative(r, alpha, beta, N):
         dp.append(gamma * Jacobi_P[n-1])
     return dp
 
-# the following functions are in the style of Hesthaven for
-# transcription of his functions.
+
 def JacobiP(pts, α, β, N):
-    """ same functionality as Hesthaven """
+    """ returns the single Jacobi polynomial order N at pts
+    transcribed from Hesthaven 2008 (JacobiP.m)
+    """
     return Jacobi_Poly(pts, α, β, N+1)[-1]
 
 def GradJacobiP(pts, α, β, N):
-    """ copy functionality from hesthaven """
+    """ returns the single Jacobi polynomial derivative at pts
+    transcribed from Hesthaven 2008 (GradJacobiP.m)
+    """
     dp = np.zeros(len(pts))
     if N==0:
         return dp

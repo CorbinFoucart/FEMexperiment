@@ -2,46 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import orthopy
 
 import src.fem_base.master.barycentric_coord_tools as bct
 import src.fem_base.master.polynomials_1D as p1d
-
-def mk_m2ij(p):
-    """ returns a list A for which A[m] = (i,j) for orthopy polynomials psi_m"""
-    return [(j,i) for i in range(p) for j in range(i+1)]
-
-def ortho_triangle(bary, p):
-    """ wraps orthopy, returns tree of orthonormal polys over bary coords
-    @param bary  barycentric points on a triangle at which to eval polynomials
-    @param p  the order of the basis -- how many polynomials we want
-    @retval polys (npts, m) array of psi_m at the npts
-
-    orthopy returns a list of arrays, where `out[k]` hosts the `2*k+1`
-    values of the `k`th level of the tree
-        (0, 0)
-        (0, 1)   (1, 1)
-        (0, 2)   (1, 2)   (2, 2)
-          ...      ...      ...   (i, j)
-    so we unpack the (i,j) into the index m via m2ij above.
-    """
-    m2ij = mk_m2ij(p)
-    ortho_output = orthopy.triangle.tree(bary, n=p, standardization='normal')
-    npts, npolys = bary.shape[1], len(m2ij)
-    polys = np.zeros((npts, npolys))
-    for m, (i,j) in enumerate(m2ij):
-        polys[:,m] = ortho_output[j][i,:]
-    return polys
-
-def P_tilde(pts, p, verts=((-1, -1), (1, -1), (-1, 1))):
-    """ generates the values of the orthonormal modal polynomials at pts r on the reference tri
-    @param verts  tuple of tuples specifying the CCW vertices of the triangle in question
-    @param pts  points defined on the triangle defd by verts (npts, 2)
-    @param p  order of the orthonormal polynomial basis to be generated
-    """
-    bary_coords = bct.cart2bary(verts, pts.T)
-    polys = ortho_triangle(bary_coords, p+1)
-    return polys
 
 def xi_eta_to_ab(ξ, η):
     """ function to transform xi, eta coords to a, b
@@ -56,12 +19,33 @@ def xi_eta_to_ab(ξ, η):
     b = η
     return a, b
 
-def poly_gradient_simplex(a, b, i, j):
-    """ takes derivatives of modal basis polys w/r/t ξ, η
-    transcribed from GradSimplex2D in Hesthaven
+def Simplex2DPoly(a, b, i, j):
+    """ generates the orthonormal polynomial over the master simplex (mapped to a, b coords)
+    transcriber from Hesthaven 2008 (Simplex2DP.m)
     """
-    Pa, dP_da = p1d.Jacobi_Poly(a,0,    0,i)[-1], p1d.Jacobi_Poly_Derivative(a,0    ,0,i)[-1]
-    Pb, dP_db = p1d.Jacobi_Poly(b,2*i+1,0,j)[-1], p1d.Jacobi_Poly_Derivative(b,2*i+1,0,j)[-1]
+    h1 = p1d.JacobiP(a, 0, 0, i)
+    h2 = p1d.JacobiP(b, 2*i+1, 0, j)
+    P = np.sqrt(2.)*h1*h2*(1-b)**i
+    return P
+
+def Vandermonde2D(N, ξ, η):
+    a, b = xi_eta_to_ab(ξ, η)
+    Np = int((N+1)*(N+2)/2)
+    V2d = np.zeros((len(ξ), Np))
+    counter = 0
+    for i in range(N+1):
+        for j in range(N-i+1):
+            m = j + (N+1)*i + 1 - i/2.*(i-1)
+            V2d[:,counter] = Simplex2D(a, b, i,j)
+            counter += 1
+    return V2d
+
+def Simplex2DPolyGradient(a, b, i, j):
+    """ takes derivatives of modal basis polys w/r/t ξ, η
+    transcribed from Hesthaven (GradSimplex2D.m)
+    """
+    Pa, dP_da = p1d.JacobiP(a,0,    0,i), p1d.GradJacobiP(a,0    ,0,i)
+    Pb, dP_db = p1d.JacobiP(b,2*i+1,0,j), p1d.GradJacobiP(b,2*i+1,0,j)
 
     # d/dξ = da/dξ * d/da + db/dξ * d/db = 2/(1-b) d/da
     dψ_dξ = dP_da * Pb
@@ -82,10 +66,6 @@ def poly_gradient_simplex(a, b, i, j):
     dψ_dξ *= 2**(i+0.5)
     dψ_dη *= 2**(i+0.5)
     return [dψ_dξ, dψ_dη]
-
-def Vandermonde2D(pts, p, verts=((-1, -1), (1, -1), (-1, 1))):
-    """ evaluates the vandermonde matrix at the specified points """
-    return P_tilde(pts, p, verts)
 
 def GradVandermonde2D(p, ξ, η):
     """ compute the derivative vandermonde matrices in ξ, η directions """
