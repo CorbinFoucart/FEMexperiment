@@ -52,7 +52,6 @@ class Master2DTriangle(Master2D):
 
 class Master2DQuad(Master2D): pass
 
-# adapter functions to interface with MPU cubature rules
 def triangle_quadrature(n, verts):
     """ look up / compute quadrature rule over the triangle, order n
     @param n  the order of polynomial which should be integrated exactly
