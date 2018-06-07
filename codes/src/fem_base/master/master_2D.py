@@ -19,7 +19,7 @@ class Master2DTriangle(Master2D):
     def __init__(self, p, nquad_pts=None, *args, **kwargs):
         self.p, self.dim = p, 2
         self.basis = nb2d.NodalBasis2DTriangle(self.p, **kwargs)
-        self.nb, self.verts = self.basis.nb, self.basis.verts
+        self.nb, self.verts, self.n_ed = self.basis.nb, self.basis.verts, 3
         self.nodal_pts = self.basis.nodal_pts
         self.nq = 2*self.p +2 if nquad_pts is None else nquad_pts
         self.quad_pts, self.wghts = triangle_quadrature(self.nq, self.verts)
@@ -32,6 +32,12 @@ class Master2DTriangle(Master2D):
         self.M, self.S, self.K = self.mk_M(), self.mk_S(), self.mk_K()
         self.Minv = np.linalg.inv(self.M)
 
+        # compute nodal ids of edge nodes, as well as the lifting matrix
+        self.ids_ed = self.find_nodes_on_edges()
+        self.nr = sum([len(ids) for ids in self.ids_ed])
+        self.L = self.mk_L()
+        self.edge_normals = np.array([[1, 1], [-1, 0], [0, -1]])
+
     def mk_M(self):
         """ the mass matrix, M_ij = (phi_i, phi_j) """
         shapw = np.dot(np.diag(self.wghts), self.shap_quad)
@@ -39,14 +45,49 @@ class Master2DTriangle(Master2D):
         return M
 
     def mk_S(self):
-        """ the stiffness matrix, S[k]_ij = (phi_i, \frac{d\phi_j}{dx_k}) """
+        """ the stiffness matrix, S[k]_ij = (phi_i, \frac{d\phi_j}{dx_k})
+        returns a list indexed by coordinate direction on the master element
+        """
         S = [None, None]
         for i in range(self.dim):
             dshapw = np.dot(np.diag(self.wghts), self.dshap_quad[i])
             S[i] = np.dot(self.shap_quad.T, dshapw)
         return S
 
-    def mk_K(self): pass
+    def mk_K(self):
+        """ the stiffness matrix, K_ij = (\frac{d\phi_i}{dx_k}, \frac{d\phi_j}{dx_k})
+        returns a list indexed by coordinate direction on the master element
+        """
+        K = [None, None]
+        for i in range(self.dim):
+            dshapw = np.dot(np.diag(self.wghts), self.dshap_quad[i])
+            K[i] = np.dot(self.dshap_quad[i].T, dshapw)
+        return K
+
+    def find_nodes_on_edges(self):
+        """ computes the node numbers (ids) on each edge
+        the i^th barycentric coord of a point on a tri edge will be 0, find these pts
+        @retval ids_ed  list of vectors indexed by edge number
+        NOTE: we manually flip edges 0 and 2 to ensure CCW ordering of ed dof around the element
+        """
+        ids_ed = [None, None, None]
+        bary_coords = bct.cart2bary(self.verts, self.nodal_pts.T)
+        ids_ed[0] = np.where( np.isclose(bary_coords[0, :], 0.) )[0][::-1]
+        ids_ed[1] = np.where( np.isclose(bary_coords[1, :], 0.) )[0]
+        ids_ed[2] = np.where( np.isclose(bary_coords[2, :], 0.) )[0][::-1]
+        return ids_ed
+
+    def mk_L(self):
+        """ makes the elemental lifting matrix """
+        L = np.zeros((self.nb, self.nr), dtype=int)
+        for ed_dof, interior_dof in enumerate(np.hstack(self.ids_ed)):
+            L[interior_dof, ed_dof] = 1
+        return L
+
+
+
+
+
 
 
 
