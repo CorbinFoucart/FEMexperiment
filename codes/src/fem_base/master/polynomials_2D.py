@@ -36,7 +36,7 @@ def Vandermonde2D(N, ξ, η):
     for i in range(N+1):
         for j in range(N-i+1):
             m = j + (N+1)*i + 1 - i/2.*(i-1)
-            V2d[:,counter] = Simplex2D(a, b, i,j)
+            V2d[:,counter] = Simplex2DPoly(a, b, i,j)
             counter += 1
     return V2d
 
