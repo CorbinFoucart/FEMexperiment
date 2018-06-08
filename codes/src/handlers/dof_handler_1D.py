@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import numpy as np
+
 class DOFHandler1D(object): pass
 
 class DG_DOFHandler1D(DOFHandler1D):

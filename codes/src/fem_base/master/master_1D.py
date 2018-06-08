@@ -18,6 +18,7 @@ class Master1D(object):
 
         # shape functions at nodal and quadrature points
         self.shap_quad,  self.dshap_quad = self.mk_shap_and_dshap_at_pts(self.quad_pts)
+        _,  self.dshap_nodal = self.mk_shap_and_dshap_at_pts(self.nodal_pts)
 
         # mass, stiffness matrices
         self.M, self.S, self.K = self.mk_M(), self.mk_S(), self.mk_K()
@@ -56,6 +57,6 @@ class Master1D(object):
         return L
 
     @property
-    def shap_der(self):
+    def nodal_shap_der(self):
         """ return the shape derivatives for apps expecting 2, 3D"""
-        return [self.dshap_quad]
+        return [self.dshap_nodal]
