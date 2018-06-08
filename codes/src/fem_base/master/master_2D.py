@@ -6,6 +6,7 @@ import quadpy
 
 import src.fem_base.master.nodal_basis_2D as nb2d
 import src.fem_base.master.barycentric_coord_tools as bct
+import src.fem_base.master.master_1D as m1d
 
 class Master2D(object):
 
@@ -26,17 +27,18 @@ class Master2DTriangle(Master2D):
 
         # shape functions at nodal and quadrature points
         self.shap_quad,  self.dshap_quad = self.mk_shap_and_dshap_at_pts(self.quad_pts)
-        self.shap_nodal, self.dshap_nodal = self.mk_shap_and_dshap_at_pts(self.nodal_pts)
+        _, self.dshap_nodal = self.mk_shap_and_dshap_at_pts(self.nodal_pts)
 
         # mass, stiffness matrices
         self.M, self.S, self.K = self.mk_M(), self.mk_S(), self.mk_K()
         self.Minv = np.linalg.inv(self.M)
 
-        # compute nodal ids of edge nodes, as well as the lifting matrix
+        # edge data structures, master edge, nodes on the edge, lifting matrix, normals
+        self.master_edge = [m1d.Master1D(p=self.p)]
         self.ids_ed = self.find_nodes_on_edges()
         self.nr = sum([len(ids) for ids in self.ids_ed])
         self.L = self.mk_L()
-        self.edge_normals = np.array([[1, 1], [-1, 0], [0, -1]])
+        self.edge_normals = np.array([[1/np.sqrt(2), 1/np.sqrt(2)], [-1, 0], [0, -1]])
 
     def mk_M(self):
         """ the mass matrix, M_ij = (phi_i, phi_j) """
@@ -68,7 +70,8 @@ class Master2DTriangle(Master2D):
         """ computes the node numbers (ids) on each edge
         the i^th barycentric coord of a point on a tri edge will be 0, find these pts
         @retval ids_ed  list of vectors indexed by edge number
-        NOTE: we manually flip edges 0 and 2 to ensure CCW ordering of ed dof around the element
+        NOTE: we manually flip edges 0 and 2 to ensure CCW ordering
+            of ed dof around the element
         """
         ids_ed = [None, None, None]
         bary_coords = bct.cart2bary(self.verts, self.nodal_pts.T)
@@ -83,13 +86,6 @@ class Master2DTriangle(Master2D):
         for ed_dof, interior_dof in enumerate(np.hstack(self.ids_ed)):
             L[interior_dof, ed_dof] = 1
         return L
-
-
-
-
-
-
-
 
 class Master2DQuad(Master2D): pass
 
