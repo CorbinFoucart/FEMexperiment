@@ -249,6 +249,15 @@ master element shape functions.
     \frac{\partial \phi_i}{\partial x} \\
     \frac{\partial \phi_i}{\partial y} \\
   \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \frac{\partial \xi}{\partial x} & \frac{\partial \xi}{\partial y} \\
+    \frac{\partial \eta}{\partial x} & \frac{\partial \eta}{\partial y} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \frac{\partial \phi_i}{\partial \xi} \\
+    \frac{\partial \phi_i}{\partial \eta}
+  \end{bmatrix}
   =J^{-1}
   \begin{bmatrix}
     \frac{\partial \phi_i}{\partial \xi} \\
@@ -271,6 +280,9 @@ Which can be explicitly written as
 \end{align}
 
 Extension to the general case should be apparent from the specific two-dimensional examples.
+Discrete computation of these $\frac{\partial \bm{\xi}}{\partial \bm{x}}$ operators will allow us to
+perform differentiation and integration on the master element rather than in physical space, which
+would be prohibitively expensive.
 
 \subsection{continuous integral operators} \label{ssec:integral_operators}
 
@@ -441,6 +453,38 @@ chain rule relations (\ref{eq:def_inv_der}) into the physical space integral exp
     \end{split}
     \label{eq:disc_weak_laplacian_qf}
   \end{align}
+
+\subsection{discrete differentiation operators}
+
+  It is often the case that we wish to take derivatives of fields explicitly, in the case of source
+  terms and the like. In this case, we can take advantage of the fact that we have computed the
+  $\frac{\partial \bm{xi}}{\partial \bm{x}}$ $J^{-1}$ operators, which is discussed in
+  \cite{hesthaven2007nodal}, in chapter 6. Since we suppose that the transformation
+  $\bm{x}(\bm{\xi})$ is invertible, with inverse transformation $\bm{\xi}(\bm{x})$. Then 
+  (\ref{eq:def_inv_der}) can be used to assert
+
+  \begin{align}
+    \begin{split}
+      &\frac{\partial \phi}{\partial x} = 
+        \frac{\partial \phi}{\partial \xi} \frac{\partial \xi}{\partial x}
+        + \frac{\partial \phi}{\partial \eta} \frac{\partial \eta}{\partial x}
+        \qquad
+      \frac{\partial \phi}{\partial y} = 
+        \frac{\partial \phi}{\partial \xi} \frac{\partial \xi}{\partial y}
+        + \frac{\partial \phi}{\partial \eta} \frac{\partial \eta}{\partial y} \\
+      \Rightarrow &\frac{\partial }{\partial x}(\cdot) 
+      = \frac{\partial \xi}{\partial x} \mathcal{D}_{\xi} + \frac{\partial \eta}{\partial x}
+      \mathcal{D}_{\eta} \qquad
+      \frac{\partial }{\partial x}(\cdot) 
+      =\frac{\partial \xi}{\partial y} \mathcal{D}_{\xi} + \frac{\partial \eta}{\partial y}
+      \mathcal{D}_{\eta}
+    \end{split}
+  \end{align}
+
+  Where $\mathcal{D}_k$ is the discrete differentiation matrix $MS_k$ in coordinate direction
+  $k$ defined in \cite{hesthaven2007nodal}. Now that we have defined these discrete operators, we
+  can mix and match them in order to take gradients, divergences, curls etc. of the scalar or vector
+  fields in question.
 
 % bibliography
 \nocite{*}
