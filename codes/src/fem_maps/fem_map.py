@@ -101,7 +101,7 @@ def _detJ(J, dim):
 
 # set of functions that compute detJ or invert Jacobian arrays
 def _detJ_1D(J):
-    detJ = J[:,0,0,:]
+    detJ = np.copy(J[:,0,0,:])
     return detJ
 
 def _inv_Jacobian_1D(J, detJ):
