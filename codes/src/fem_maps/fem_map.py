@@ -7,7 +7,6 @@ TODO improve description once code is finalized
         Jinv[et][0, i, j, k] jacobian inverse dr/dx at dof 0 on element k
 """
 import numpy as np
-import pdb
 
 def quad_Jinv_and_detJ(master, dgnodes):
     """ computes the inverse Jacobian (Jinv) and detJ transforms at quadrature points
