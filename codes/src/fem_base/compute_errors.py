@@ -10,9 +10,8 @@ def L2_error_1D_domain(u, uExFn, dofh, _map, master):
     @param dofh  DOFHandler instance
     """
     uEx = uExFn(dofh.dgnodes)
-    diff = np.abs(u - uEx)
-    detJ = _map._detJ[0]
-    L2Err = np.dot(diff.T, np.dot(master.M, diff*detJ))
+    diff = u - uEx
+    L2Err = _1D_L2_domain_integral(diff, dofh, _map, master)
     return L2Err
 
 def _1D_L2_domain_integral(u, dofh, _map, master):
