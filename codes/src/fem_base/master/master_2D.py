@@ -18,6 +18,7 @@ class Master2D(object):
 class Master2DTriangle(Master2D):
     """ note vertex definitions in nodal_basis_2D.py """
     def __init__(self, p, nquad_pts=None, *args, **kwargs):
+        self.name = "TRIANGLE"
         self.p, self.dim = p, 2
         self.basis = nb2d.NodalBasis2DTriangle(self.p, **kwargs)
         self.nb, self.verts, self.n_ed = self.basis.nb, self.basis.verts, 3
