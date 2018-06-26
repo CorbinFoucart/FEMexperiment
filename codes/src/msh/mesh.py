@@ -91,6 +91,7 @@ class Mesh():
         return self.ed2ed[globalEdgeNum, elmIdx + 1].ravel()[0]
 
 class Mesh2D(Mesh):
+    elm_enumeration = {"TRIANGLE":0, "QUAD":1}
     def __init__(self, elm, vert):
         '''
         We are assuming only two types of elements here. 2D triangles and 2D
@@ -128,17 +129,20 @@ class Mesh2D(Mesh):
 
         #Now sort by vertex number
         if n_tri > 0: elm[0:n_tri, :] = mshu.sort_by_vertex_number(elm[0:n_tri, :])
-        if n_tri < n_elm: elm[n_tri:n_elm, :] = mshu.sort_by_vertex_number(elm[n_tri:n_elm, :])
+        if n_tri < n_elm: elm[n_tri:n_elm, :] = mshu.sort_by_vertex_number(
+                                                     elm[n_tri:n_elm, :])
 
         elm_type = np.zeros(n_elm, dtype=int)
-        if n_tri == n_elm: u_elm_type = [0]
-        elif n_tri == 0:   u_elm_type = [1]
+        if n_tri == n_elm: u_elm_type = [self.elm_enumeration["TRIANGLE"]]
+        elif n_tri == 0:   u_elm_type = [self.elm_enumeration["QUAD"]]
         else:
-            u_elm_type = [0, 1]
-            elm_type[n_tri:n_elm] = 1
+            u_elm_type = [self.elm_enumeration["TRIANGLE"],
+                          self.elm_enumeration["QUAD"]]
+            elm_type[n_tri:n_elm] = self.elm_enumeration["QUAD"]
 
         #create the connectivity matrixes (Which needs the element enumerated type)
-        elm2elm, ed2ed = connect_elm(elm, np.array(u_elm_type)[elm_type], dim, u_elm_type)
+        elm2elm, ed2ed = connect_elm(
+                elm, np.array(u_elm_type)[elm_type], dim, u_elm_type)
 
         ## The element connectivity matrix. elm2elm[i, j] gives the element
         # number which is connected to element i, through edge j of element i.
