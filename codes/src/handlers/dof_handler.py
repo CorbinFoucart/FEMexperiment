@@ -16,14 +16,30 @@ class base_dofh(object):
             elm_dof += n_basis_fns * n_elm
         return elm_dof
 
-    def mk_nodal_points(self):
-        master_nodal_pts = [M.basis.nodal_pts for M in self.master]
-        nodes = util.mk_nodes_vol(self, master_nodal_pts,
-                vert_vals=self.mesh.vert[:], elmids=None)
-        return nodes
+    def mk_nodal_points(self, master):
+        """ creates the physical space nodal points for a single element type
+        @param master  the Master2D master element object
+        retval dgnodes_arr  the dgnodes array for a single element type
+        NOTE: if verts empty, return value is None
+        """
+        elm_T = self.mesh.connectivity_by_elm_type(master.name)
+        n_elm = elm_T.shape[0]
+        if n_elm > 0:
+            dgnodes_arr = np.zeros((master.nb, master.dim, n_elm))
+            verts = self.mesh.vert[:,:2][elm_T]
+            for elm in range(n_elm):
+                dgnodes_arr[:,:,elm] = master.map_to_physical_space(verts[elm,::])
+            return dgnodes_arr
 
     def mk_dgnodes(self):
-        dgnodes = [dgn.swapaxes(0, 1) for dgn in self.mk_nodal_points()]
+        """ makes the list of dgnodes arrays for each element type in the mesh
+        @retval dgnodes  list of dgnodes_arrays by element type
+        """
+        dgnodes = list()
+        for master in self.master:
+            dgnodes_arr_elm = self.mk_nodal_points(master)
+            if dgnodes_arr_elm is not None:
+                dgnodes.append(dgnodes_arr_elm)
         return dgnodes
 
     def mk_nodal_ed_points(self):
@@ -155,7 +171,7 @@ class HDG_dofh(base_dofh):
         self.master, self.master_ed = master_elms, master_eds
         self.n_elm_dof, self.n_dof_ed = self.count_elm_dof(), self.count_ed_dof()
         self.dgnodes = self.mk_dgnodes()
-        self.dgnodes_ed = self.mk_dgnodes_ed()
+        #self.dgnodes_ed = self.mk_dgnodes_ed()
 
     def count_ed_dof(self):
         ed_dof = 0
