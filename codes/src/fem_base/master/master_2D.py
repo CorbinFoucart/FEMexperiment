@@ -28,6 +28,7 @@ class Master2DTriangle(Master2D):
         # shape functions at nodal and quadrature points
         self.shap_quad,  self.dshap_quad = self.mk_shap_and_dshap_at_pts(self.quad_pts)
         _, self.dshap_nodal = self.mk_shap_and_dshap_at_pts(self.nodal_pts)
+        self.nodal_barycentric_coords = bct.cart2bary(self.verts, self.nodal_pts.T)
 
         # mass, stiffness matrices
         self.M, self.S, self.K = self.mk_M(), self.mk_S(), self.mk_K()
@@ -86,6 +87,13 @@ class Master2DTriangle(Master2D):
         for ed_dof, interior_dof in enumerate(np.hstack(self.ids_ed)):
             L[interior_dof, ed_dof] = 1
         return L
+
+    def map_to_physical_space(self, tri_verts):
+        """ uses barycentric coords to map nodal pts to physical space element
+        @param tri_verts  np array shape (3, 2) with xy coords of phys space tri
+        """
+        x, y = bct.bary2cart(tuple(tri_verts), self.nodal_barycentric_coords)
+        return np.vstack((x, y)).T
 
 class Master2DQuad(Master2D): pass
 
