@@ -55,8 +55,10 @@ class CG_dofh(base_dofh):
         """
         @param n  the polynomial order of the basis
         @param mesh  the mesh data-structure
-        @param master_elms  a list of master element instances corresponding to mesh element types
-        @param master_eds  a list of master element instances corresponding to mesh edge types
+        @param master_elms  a list of master element instances corresponding to
+            mesh element types
+        @param master_eds  a list of master element instances corresponding to
+            mesh edge types
         """
         self.p = n
         self.mesh = mesh
@@ -91,7 +93,9 @@ class CG_dofh(base_dofh):
         interior_nodes = all_nodes - bd_nodes
         n_int, n_bd = len(interior_nodes), len(bd_nodes)
         nodes_dict = OrderedDict([(pt, idx) for idx, pt in enumerate(interior_nodes)] +
-                                 [(pt, idx + n_int) for idx, pt in enumerate(bd_nodes)])
+                                 [(pt, idx + n_int) for idx, pt in
+                                 enumerate(bd_nodes)])
+
         bd_nodes = np.arange(n_int, len(nodes_dict))
         int_nodes = np.arange(n_int)
         cgnodes = np.asarray(nodes_dict.keys())
@@ -108,7 +112,10 @@ class CG_dofh(base_dofh):
         return bd_nodes
 
     def mk_node_set(self):
-        """ compiles a set containing all distinct nodal points as tuples dg -> cg nodes """
+        """
+        compiles a set containing all distinct nodal points as tuples dg -> cg
+        nodes
+        """
         node_set = set()
         for etype, dgnodes in enumerate(self.dgnodes):
             dof_elm, _, nelm = dgnodes.shape
@@ -118,7 +125,8 @@ class CG_dofh(base_dofh):
 
     def mk_lg(self, nodes_dict):
         """ makes the local to global array by element type
-        @param nodes dict  ordered dict with [x1, ..., xn] tuples as keys, glob idx is value
+        @param nodes dict  ordered dict with [x1, ..., xn] tuples as keys, glob
+            idx is value
         """
         lg = list()
         for etype, dgnodes in enumerate(self.dgnodes):
@@ -136,8 +144,9 @@ class HDG_dofh(base_dofh):
         """
         @param n  the polynomial order of the basis
         @param mesh  the mesh data-structure
-        @param master_elms  a list of master element instances corresponding to mesh element types
-        @param master_eds  a list of master element instances corresponding to mesh edge types
+        @param master_elms  a list of master element instances corresponding to
+            mesh element types @param master_eds  a list of master element instances
+            corresponding to mesh edge types
         """
         self.p = n
         self.mesh = mesh
