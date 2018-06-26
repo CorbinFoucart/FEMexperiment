@@ -270,6 +270,16 @@ class Mesh2D(Mesh):
         #   (Indexing has been improved since the below was implemented)
         self.in2ex_bd_id = [ex.cumsum()-1 for ex in self.ids_exterior_ed_by_type]
 
+    def connectivity_by_elm_type(self, elm_type):
+        """ returns the connectivity list for a single element type """
+        conn_mask = self.elm_type == self.elm_enumeration[elm_type]
+        if elm_type == "TRIANGLE":
+            return self.elm[conn_mask, :3] # ignore -1
+        elif elm_type == "QUAD":
+            return self.elm[conn_mask, :]
+        else:
+            raise ValueError("elm_type not understood")
+
     def fix(self):
         ''' Function that ensures the the elements are properly numbered in
         a counter-clockwise fashion, with no crosses. This function updates the
@@ -308,6 +318,7 @@ class Mesh2D(Mesh):
 
         #Boundary condition information
         tot_bc_ids = -min(self.ed2ed[self.ids_exterior_ed, 2])
+
         ##Total number of different bc_ids
         self.n_bc_id = tot_bc_ids
 
