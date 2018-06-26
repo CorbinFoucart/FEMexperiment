@@ -28,31 +28,30 @@ class Mesh():
     """
     Parent class of Mesh2D and Mesh3D for shared functionality.
 
-    Aim is to prevent duplication of code common to both Mesh2D and Mesh3D classes, since they
-    otherwise would not share a parent.
+    Aim is to prevent duplication of code common to both Mesh2D and Mesh3D
+    classes, since they otherwise would not share a parent.
     """
 
     def get_global_vertex_numbers(self, globEdNum=None):
-        """ returns the global vertex numbers given a global edge nubmer of the mesh
+        """ returns the global vertex numbers given a global edge nubmer of the
+        mesh
 
-        Recall that ed2ed has the following structure for each row (corresponding to a single edge
-        in the mesh:
+        Recall that ed2ed has the following structure for each row
+        (corresponding to a single edge in the mesh:
 
-        [(+) elm #, (+) side local edge #, (-) elm#, (-) elm loc edge #, vertex 1, vertex 2...]
-                (0:2)                            (2:4)               (4:)
-        """
+        [(+) elm #, (+) side local edge #, (-) elm#, (-) elm loc edge #, vertex
+        1, vertex 2...] (0:2)                            (2:4)
+        (4:) """
         return self.ed2ed[globEdNum, 4:].ravel()
 
     def get_adjacent_elm(self, globalEdgeNum, side):
-        """
-        returns the adjacent element number on the specified side of the given global edge number
-        @param globalEdgeNum - the global edge number
-        @param side - either 'LEFT' or 'RIGHT' where in ed2ed the LEFT element is given first, then
-        the right element.
+        """ returns the adjacent element number on the specified side of the
+        given global edge number @param globalEdgeNum - the global edge number
+        @param side - either 'LEFT' or 'RIGHT' where in ed2ed the LEFT element
+        is given first, then the right element.
 
         # to get the left adjacent element of glboal edge 23
-        mesh.get_adjacent_elm(23, 'LEFT')
-        """
+        mesh.get_adjacent_elm(23, 'LEFT') """
         # assign the index based on the structure of the ed2ed rows
         if side == 'LEFT':
             elmIdx = 0
@@ -64,22 +63,23 @@ class Mesh():
 
     def get_adjacent_elm_local_edge(self, globalEdgeNum, side):
         """
-        For a global edge, returns the corresponding local edge number for the adjacent element on
-        the specified side.
+        For a global edge, returns the corresponding local edge number for the
+        adjacent element on the specified side.
 
-        @param globalEdgeNum - the global edge number
-        @param side - either 'LEFT' or 'RIGHT' where in ed2ed the LEFT element is given first, then
+        @param globalEdgeNum - the global edge number @param side - either
+        'LEFT' or 'RIGHT' where in ed2ed the LEFT element is given first, then
         the right element.
 
-        Each global edge has a left element, and possibly a right element (not in the case of a
-        boundary). In the case where the adjacent element exists, the global edge is spatially
-        corresponds to one of the local edges on the adjacent element. This information is contained
-        in the ed2ed connectivity array, and this helper function represents a way for the user of
-        the mesh class to retrieve this information without knowing the internals of the mesh data
-        structure.
+        Each global edge has a left element, and possibly a right element (not
+        in the case of a boundary). In the case where the adjacent element
+        exists, the global edge is spatially corresponds to one of the local
+        edges on the adjacent element. This information is contained in the
+        ed2ed connectivity array, and this helper function represents a way for
+        the user of the mesh class to retrieve this information without knowing
+        the internals of the mesh data structure.
 
-        NOTE: if the element to the right hand side does not exist (boundary case), then the return
-        value will be -1.
+        NOTE: if the element to the right hand side does not exist (boundary
+        case), then the return value will be -1.
         """
         # assign the index based on the structure of the ed2ed rows
         if side == 'LEFT':
@@ -165,8 +165,8 @@ class Mesh2D(Mesh):
         self.elm = elm
 
         ## The different unique types of elements in the triangulation.
-        # TODO: CF: this is differently abled -- if only there were some type of ... dictionary in
-        # python which could take a readable name as a key...
+        # TODO: CF: this is differently abled -- if only there were some type of
+        # ... dictionary in python which could take a readable name as a key...
         self.u_elm_type = np.array(u_elm_type, dtype = int)
 
         ## The element type. u_elm_type[elm_type[i]] gives the type of element
@@ -196,10 +196,12 @@ class Mesh2D(Mesh):
         ## Gives the number of edge elements of a particular type
         self.n_ed_type = [len(self.ed2ed)]
 
-        ## Array giving the x-y coordinates of the global vertices in the triangulation.
+        # Array giving the x-y coordinates of the global vertices in the
+        # triangulation.
         self.vert = vert
 
-        ##The dimension of the mesh, dim=2, since this Mesh2D is exclusively for 2D meshes.
+        # The dimension of the mesh, dim=2, since this Mesh2D is exclusively for
+        # 2D meshes.
         self.dim = dim
 
         ##Vertex map, maps the vertex number from one periodic edge to the
@@ -815,8 +817,9 @@ class Ed2Ed2D_extrude(Extrude2D):
             # CF: OLD MPU CODE DOES THIS:
             # ids_done[ids] = True
             #
-            # where he applies a boolean mask that's shorter than the actual array. Is this is a
-            # shortcut or a bug? Unclear, but explicitly padding to fix the warning.
+            # where he applies a boolean mask that's shorter than the actual
+            # array. Is this is a shortcut or a bug? Unclear, but explicitly
+            # padding to fix the warning.
             padLength = len(ids_done) - len(ids)
             pad = np.zeros(padLength, dtype=bool)
             paddedIds = np.append(ids, pad)
