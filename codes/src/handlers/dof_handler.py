@@ -42,14 +42,25 @@ class base_dofh(object):
                 dgnodes.append(dgnodes_arr_elm)
         return dgnodes
 
-    def mk_nodal_ed_points(self):
-        master_ed_nodal_pts = [Med.basis.nodal_pts for Med in self.master_ed]
-        nodes = util.mk_nodes_ed(self, master_ed_nodal_pts)
-        return nodes
+    def mk_nodal_points_ed(self, master):
+        """ creates the physical space nodal points for a single edge type
+        @param master  the master edge object
+        retval dgnodes_arr  the dgnodes array for a single element type
+        NOTE: if verts empty, return value is None
+        """
+        edge_verts = self.mesh.edge_vertices()
+        T = master.map_to_physical_edge()
+        shape = edge_vertices.shape
+        pts = np.dot(T, ed_verts.swapaxes(0, 1).swapaxes(1, 2).reshape(
+            shape[1], shape[0]*shape[2]))
+        return pts.reshape(master.nb, shape[2], shape[0])
 
     def mk_dgnodes_ed(self):
-        dgnodes = [dgn.swapaxes(0, 1) for dgn in self.mk_nodal_ed_points()]
-        return dgnodes
+        """ makes dgnodes by embedding the master edge to phys space edge verts
+        @TODO: this will have to change for 3D
+        """
+        dgnodes_ed = list()
+        pass
 
     @staticmethod
     def _dof2xy(arr):
@@ -171,9 +182,11 @@ class HDG_dofh(base_dofh):
         self.master, self.master_ed = master_elms, master_eds
         self.n_elm_dof, self.n_dof_ed = self.count_elm_dof(), self.count_ed_dof()
         self.dgnodes = self.mk_dgnodes()
-        #self.dgnodes_ed = self.mk_dgnodes_ed()
+        self.dgnodes_ed = self.mk_dgnodes_ed()
 
     def count_ed_dof(self):
+        """ returns a count of all the edge degrees of freedom for the problem
+        """
         ed_dof = 0
         for master_ed, n_ed in zip(self.master_ed, self.n_elm_type):
             n_ed_basis_fns = master_ed.nb
