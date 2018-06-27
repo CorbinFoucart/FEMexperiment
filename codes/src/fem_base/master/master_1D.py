@@ -56,6 +56,18 @@ class Master1D(object):
         L[-1, 1] = 1
         return L
 
+    def map_to_physical_edge(self):
+        """ creates a transformation matrix which can map a list of 2D edge
+        vertices to their physical space locations.
+        @retval T  transformation matrix
+        """
+        vertices = self.basis.vol_verts
+        T = np.ones((len(self.nodal_pts), 2))
+        for node in range(self.nb):
+            T[node, 0] = (1. + np.sign(vertices[0]) * self.nodal_pts[node]) / 2.
+            T[node, 1] = (1. + np.sign(vertices[1]) * self.nodal_pts[node]) / 2.
+        return T
+
     @property
     def nodal_shap_der(self):
         """ return the shape derivatives for apps expecting 2, 3D"""
