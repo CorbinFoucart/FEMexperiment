@@ -141,8 +141,8 @@ class Mesh2D(Mesh):
             elm_type[n_tri:n_elm] = self.elm_enumeration["QUAD"]
 
         #create the connectivity matrixes (Which needs the element enumerated type)
-        elm2elm, ed2ed = connect_elm(
-                elm, np.array(u_elm_type)[elm_type], dim, u_elm_type)
+        elm2elm, ed2ed = connect_elm(elm, np.array(u_elm_type)[elm_type], dim,
+                u_elm_type)
 
         ## The element connectivity matrix. elm2elm[i, j] gives the element
         # number which is connected to element i, through edge j of element i.
@@ -279,6 +279,17 @@ class Mesh2D(Mesh):
             return self.elm[conn_mask, :]
         else:
             raise ValueError("elm_type not understood")
+
+    def edge_vertex_numbers(self):
+        """ returns the edge vertex numbers in the mesh """
+        return self.ed2ed[:, 4:]
+
+    def edge_vertices(self):
+        """ returns the points of all the edge vertices in the mesh
+        @retval ed_verts  (n_edges, dim, local vertex number (0, 1))
+        """
+        ed = self.edge_vertex_numbers()
+        return self.vert[:,:2][ed]
 
     def fix(self):
         ''' Function that ensures the the elements are properly numbered in

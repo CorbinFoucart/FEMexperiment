@@ -90,7 +90,7 @@ class Master2DTriangle(Master2D):
         return L
 
     def map_to_physical_space(self, tri_verts):
-        """ uses barycentric coords to map nodal pts to physical space element
+        """ uses barycentric coords to map nodal pts to 2D physical space element
         @param tri_verts  np array shape (3, 2) with xy coords of phys space tri
         """
         x, y = bct.bary2cart(tuple(tri_verts), self.nodal_barycentric_coords)

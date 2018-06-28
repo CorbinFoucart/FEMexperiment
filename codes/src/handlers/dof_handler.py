@@ -50,8 +50,8 @@ class base_dofh(object):
         """
         edge_verts = self.mesh.edge_vertices()
         T = master.map_to_physical_edge()
-        shape = edge_vertices.shape
-        pts = np.dot(T, ed_verts.swapaxes(0, 1).swapaxes(1, 2).reshape(
+        shape = edge_verts.shape
+        pts = np.dot(T, edge_verts.swapaxes(0, 1).swapaxes(1, 2).reshape(
             shape[1], shape[0]*shape[2]))
         return pts.reshape(master.nb, shape[2], shape[0])
 
@@ -60,7 +60,10 @@ class base_dofh(object):
         @TODO: this will have to change for 3D
         """
         dgnodes_ed = list()
-        pass
+        for master_edge in self.master_ed:
+            dgnodes_arr_ed = self.mk_nodal_points_ed(master_edge)
+            dgnodes_ed.append(dgnodes_arr_ed)
+        return dgnodes_ed
 
     @staticmethod
     def _dof2xy(arr):

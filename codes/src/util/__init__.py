@@ -444,8 +444,7 @@ def mk_nodes_ed(sol, ed_pts, edids=None, dgnodes_ed=None):
     #For each type of edge
     for i in range(len(u_ed_type)):
         #Vertices for these elements
-        vts = sol.mesh.vert[:][ed[ed_type == i, \
-            : sol.master_ed[i].nv], : sol.dim]
+        vts = sol.mesh.vert[:][ed[ed_type == i, :sol.master_ed[i].nv], : sol.dim]
 
         #Some permutation of the ed_nodes array is needed to efficient
         #calculations, so it helps to record the shape of the vertices

@@ -13,6 +13,7 @@ class NodalBasis1D(object):
     detailed explanation in tutorial/1D_basis_and_master_element.ipynb
     """
     def __init__(self, p, node_spacing='GAUSS_LOBATTO'):
+        self.vol_verts = (-1, 1)
         self.nb = p + 1
         if node_spacing == 'GAUSS_LOBATTO':
             self.nodal_pts, _ = LegendreGaussLobatto(self.nb)

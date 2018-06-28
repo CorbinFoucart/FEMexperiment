@@ -1203,15 +1203,27 @@ def mk_mapcoords(xi, v, elt_type, dim):
 
     @pre Dimension of the element must be 1, 2, or 3
 
-    @retval T Numpy array which is the transformation matrix such that T * V = Xpts, where V is a numpy array storing the vertices of the element in real space, V = [x1, y1, z1, x2, y2, z2, ... xn, yn, zn], with each of xi, yi, and zi column vectors of length len(x) = len(vol_verts), and Xpts gives xi in realspace, Xpts.shape = (len(xi), dim * num_elm)
+    @retval T Numpy array which is the transformation matrix such that T * V =
+    Xpts, where V is a numpy array storing the vertices of the element in real
+    space, V = [x1, y1, z1, x2, y2, z2, ... xn, yn, zn], with each of xi, yi,
+    and zi column vectors of length len(x) = len(vol_verts), and Xpts gives xi
+    in realspace, Xpts.shape = (len(xi), dim * num_elm)
 
-    @note The mappings for the triangles and tetrahedrals are from the barycentric coordinates. Basically, solve for \f$\lambda_1\f$ etc. by using the master element vertices and the fact that \f$\sum \lambda_i = 1 \f$. The current implementation is very specific to how the master elements are defined.
+    @note The mappings for the triangles and tetrahedrals are from the
+    barycentric coordinates. Basically, solve for \f$\lambda_1\f$ etc. by using
+    the master element vertices and the fact that \f$\sum \lambda_i = 1 \f$. The
+    current implementation is very specific to how the master elements are
+    defined.
 
-    The mappings for quads and the z-coordinate for prisms is based on a linear nodal basis.
+    The mappings for quads and the z-coordinate for prisms is based on a linear
+    nodal basis.
 
-    @note This function is copied/pasted and modified in cal_jaco_code. Any changes here, should also require changes there.
+    @note This function is copied/pasted and modified in cal_jaco_code. Any
+    changes here, should also require changes there.
 
-    @note Triangles and tets are coded for general transforms. Prism are ONLY for the master element as defined in int_el_pqr, and squares/cubes ONLY for master elements with vertices of &amp; type (+/-1, +/-1, +/-1)
+    @note Triangles and tets are coded for general transforms. Prism are ONLY
+    for the master element as defined in int_el_pqr, and squares/cubes ONLY for
+    master elements with vertices of &amp; type (+/-1, +/-1, +/-1)
 
     @author Matt Ueckermann
     @author Chris Mirabito
@@ -1242,8 +1254,6 @@ def mk_mapcoords(xi, v, elt_type, dim):
         pass
     else:
         print("Bad element type / dimension combo")
-
-
 
     if elt_type == 0: #Tet, line, or triangle
         for j in range(len(xi)):
