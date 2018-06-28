@@ -2,30 +2,35 @@
 Computes the finite element map data structures, jacobians, ed, nrmls etc
 TODO improve description once code is finalized
 @author foucartc
-    @retval Jinv  inverse of Jacobian matrix of isoparametric transform at every dgnode
-        Jinv[elmType][dof_per_elm, dim (phys coord), dim (master coord), elm] such that
-        Jinv[et][0, i, j, k] jacobian inverse dr/dx at dof 0 on element k
+    @retval Jinv  inverse of Jacobian matrix of isoparametric transform at every
+    dgnode Jinv[elmType][dof_per_elm, dim (phys coord), dim (master coord), elm]
+    such that Jinv[et][0, i, j, k] jacobian inverse dr/dx at dof 0 on element k
 """
 import numpy as np
 
 def quad_Jinv_and_detJ(master, dgnodes):
-    """ computes the inverse Jacobian (Jinv) and detJ transforms at quadrature points
+    """ computes the inverse Jacobian (Jinv) and detJ transforms at quadrature
+    points
     @param master  list of master elements
     @param dgnodes  list of dgnodes ndarrays arrays
-    @retval detJ  determinants of the Jacobian matrices for each dgnode shape (dof_per_elm, nelm)
+    @retval detJ  determinants of the Jacobian matrices for each dgnode shape
+        (dof_per_elm, nelm)
     """
     shap_der_list = [M.shap_der for M in master]
     Jinv, detJ = _Jinv_and_detJ(shap_der_list, dgnodes)
     return Jinv, detJ
 
 def nodal_Jinv_and_detJ(master, dgnodes):
-    """ computes the inverse Jacobian (Jinv) and detJ transforms at the dg nodal points
+    """ computes the inverse Jacobian (Jinv) and detJ transforms at the dg nodal
+    points
     @param master  list of master elements
     @param dgnodes  list of dgnodes ndarrays arrays
-    @retval J List of arrays of Jacobians at each point. That is J[:, i, j, K] is J_ij of
+    @retval J List of arrays of Jacobians at each point. That is
+        J[:, i, j, K] is J_ij of
         jacobian matrix J at the points on elm K, where the entry is
         \f$\frac{\partial x_i}{\partial \ xi_j}\f$
-    @retval detJ  determinants of the Jacobian matrices for each dgnode shape (dof_per_elm, nelm)
+    @retval detJ  determinants of the Jacobian matrices for each dgnode shape
+        (dof_per_elm, nelm)
     """
     shap_der_list = [M.nodal_shap_der for M in master]
     Jinv, detJ = _Jinv_and_detJ(shap_der_list, dgnodes)
@@ -51,12 +56,13 @@ class Affine_Mapping(Isoparametric_Mapping):
 # helpers -- really these should be elsewhere
 def _Jinv_and_detJ(shap_der_list, dgnodes):
     """ computes the inverse Jacobian (Jinv) and detJ transforms at quadrature points
-    @param shap_der_list list of shape function derivates list by element type where
-        shap_der_list[elmType][master elm coord][nodes, n_nbasis_fns]
-        i.e., each element of the top level list is a list of derivative matrices indexed by
-        coordinate direction, with each entry an ndarray with shape (pts, nb) where pts denote the
-        master element points at which the derivatives are evaluated at the corresponding physical
-        space point.
+
+    @param shap_der_list list of shape function derivates list by element type
+        where shap_der_list[elmType][master elm coord][nodes, n_nbasis_fns] i.e.,
+        each element of the top level list is a list of derivative matrices indexed
+        by coordinate direction, with each entry an ndarray with shape (pts, nb)
+        where pts denote the master element points at which the derivatives are
+        evaluated at the corresponding physical space point.
     @param dgnodes  list of dgnodes ndarrays arrays
     @retval detJ  determinants of the Jacobian matrices for each dgnode shape (dof_per_elm, nelm)
     """
@@ -71,15 +77,17 @@ def _Jinv_and_detJ(shap_der_list, dgnodes):
     return Jinv, detJ
 
 def _jacobian(shap_der_at_nodes, nodes):
-    """ calculuates the jacobian matrices of an isoparametric transformation at the given nodes
-    @param shap_der_at_nodes  list of derivative matrices indexed by coordinate direction, with each
-        entry an ndarray with shape (pts, nb) where pts denote the master element points at which
-        the derivatives are evaluated at the corresponding physical space point.
-    @param nodes  ndarray of physical space nodal points that define each element
-        shape (nb, dim, nElm)
-    @retval J List of arrays of Jacobians at each point. That is J[:, i, j, K] is the array of
-        jacobian matrices at the points on elm K, where the entry is
-        \f$\frac{\partial x_i}{\partial \ xi_j}\f$
+    """ calculuates the jacobian matrices of an isoparametric transformation at
+    the given nodes
+
+    @param shap_der_at_nodes  list of derivative matrices indexed by coordinate
+        direction, with each entry an ndarray with shape (pts, nb) where pts denote
+        the master element points at which the derivatives are evaluated at the
+        corresponding physical space point.
+    @param nodes  ndarray of physical space nodal points that define each
+        element shape (nb, dim, nElm) @retval J List of arrays of Jacobians at each
+        point. That is J[:, i, j, K] is the array of jacobian matrices at the points
+        on elm K, where the entry is \f$\frac{\partial x_i}{\partial \ xi_j}\f$
     """
     nb, dim, nelm = nodes.shape
     npts, _ = shap_der_at_nodes[0].shape
@@ -91,9 +99,9 @@ def _jacobian(shap_der_at_nodes, nodes):
 
 def _detJ(J, dim):
     """ computes the detJ for Jacobian arrays as computed in _jacobian
-    @param J  List of arrays of Jacobians for  every nodal point. That is J[:, i, j, K] is the array
-        of jacobian matrices at the points on elm K, where the entry is
-        \f$\frac{\partial x_i}{\partial \ xi_j}\f$
+    @param J  List of arrays of Jacobians for  every nodal point. That is
+        J[:, i, j, K] is the array of jacobian matrices at the points on elm K,
+        where the entry is \f$\frac{\partial x_i}{\partial \ xi_j}\f$
     """
     detJ = det_J_fns[dim](J)
     return detJ
@@ -123,9 +131,9 @@ def _inv_Jacobian_2D(J, detJ):
 
 def _detJ_3D(J):
     """ manually compute determinant of 3x3 matrices in J format """
-    detJ =   J[:, 0, 0, :] * (J[:, 1, 1, :] * J[:, 2, 2, :] - J[:, 2, 1, :] * J[:, 1, 2, :]) \
-           - J[:, 1, 0, :] * (J[:, 0, 1, :] * J[:, 2, 2, :] - J[:, 2, 1, :] * J[:, 0, 2, :]) \
-           + J[:, 2, 0, :] * (J[:, 0, 1, :] * J[:, 1, 2, :] - J[:, 1, 1, :] * J[:, 0, 2, :])
+    detJ =   J[:,0,0,:] * (J[:,1,1,:] * J[:,2,2,:] - J[:,2,1,:] * J[:,1,2,:]) \
+           - J[:,1,0,:] * (J[:,0,1,:] * J[:,2,2,:] - J[:,2,1,:] * J[:,0,2,:]) \
+           + J[:,2,0,:] * (J[:,0,1,:] * J[:,1,2,:] - J[:,1,1,:] * J[:,0,2,:])
     return detJ
 
 def _inv_Jacobian_3D(): raise(NotImplementedError)
