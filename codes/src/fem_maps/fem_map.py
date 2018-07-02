@@ -16,7 +16,7 @@ def quad_Jinv_and_detJ(master, dgnodes):
     @retval detJ  determinants of the Jacobian matrices for each dgnode shape
         (dof_per_elm, nelm)
     """
-    shap_der_list = [M.shap_der for M in master]
+    shap_der_list = [M.dshap_quad for M in master]
     Jinv, detJ = _Jinv_and_detJ(shap_der_list, dgnodes)
     return Jinv, detJ
 
@@ -32,13 +32,14 @@ def nodal_Jinv_and_detJ(master, dgnodes):
     @retval detJ  determinants of the Jacobian matrices for each dgnode shape
         (dof_per_elm, nelm)
     """
-    shap_der_list = [M.nodal_shap_der for M in master]
+    shap_der_list = [M.dshap_nodal for M in master]
     Jinv, detJ = _Jinv_and_detJ(shap_der_list, dgnodes)
     return Jinv, detJ
 
 class FEM_Mapping(object): pass
 class Isoparametric_Mapping(FEM_Mapping):
     map_fns = {'QUAD':quad_Jinv_and_detJ, 'NODAL':nodal_Jinv_and_detJ}
+
     def __init__(self, master, dgnodes, map_nodes='QUAD'):
         self.Jinv, self._detJ = self.map_fns[map_nodes](master, dgnodes)
 

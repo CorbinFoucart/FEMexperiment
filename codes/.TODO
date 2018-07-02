@@ -1,5 +1,13 @@
 follow the MPU code to create dgnodes_ed in a better way (or the same way if MPU's way is good)
 
--- add a method to mesh in order to get array of edge vertices
+-- add a method to mesh in order to get array of edge vertices -- DONE
 -- create a transformation mapping from master element to phys edge -- DONE
--- create dgnodes_ed
+-- create dgnodes_ed -- DONE
+
+-- create jacobians on the edge
+-- create normal vectors
+-- implement get ed2elm in DOFH
+
+
+QUESTIONS:
+-- can edge stuff be factored out of base class of DOFH entirely?
