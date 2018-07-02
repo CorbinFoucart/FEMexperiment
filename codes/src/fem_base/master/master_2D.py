@@ -106,7 +106,7 @@ def triangle_quadrature(n, verts):
     """
     if n > 50:
         raise NotImplementedError
-    qr = quadpy.triangle.xiao_gimbutas.XiaoGimbutas(index=n)
+    qr = quadpy.triangle.xiao_gimbutas.XiaoGimbutas(degree=n)
     bary, weights = qr.bary, qr.weights
     xq, yq = bct.bary2cart(verts=verts, _lambda=bary.T)
     points = np.vstack((xq, yq)).T
