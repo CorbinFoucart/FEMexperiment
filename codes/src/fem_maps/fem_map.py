@@ -43,7 +43,7 @@ class Isoparametric_Mapping(FEM_Mapping):
     def __init__(self, master, dgnodes, map_nodes='QUAD'):
         self.Jinv, self._detJ = self.map_fns[map_nodes](master, dgnodes)
 
-    def compute_normals(self):
+    def compute_normals(self, map_nodes):
         """ computes the element normal vectors """
         pass
 
